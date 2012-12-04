@@ -6,7 +6,8 @@ find_package(TinyXML REQUIRED)
 set(book_lib_SOURCES
   Recognizer.cpp
   Database.cpp
-  Book.cpp)
+  Book.cpp
+  Exceptions.cpp)
 
 add_library(book-recognition-lib ${book_lib_SOURCES})
 target_link_libraries(book-recognition-lib ${OpenCV_LIBS})
