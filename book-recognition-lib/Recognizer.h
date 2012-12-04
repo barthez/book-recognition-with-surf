@@ -50,15 +50,25 @@ namespace BR {
     void setDatabase(const Database db);
     
     const cv::Mat & getCurrentFrame() const;
+    void showCurrentFrame(bool show_book = true) const;
     Book & getCurrentBook();
     bool next();
     
   private:
+    static int counter = 0;
+    int id;
+    std::string window_id;
+    std::string filename;
+    int cam_id;
+    bool cam;
+    
     cv::VideoCapture source;
     cv::Mat current_frame;
     Database db;
     Book current_book;
     
+    protected:
+    std::string windowID();
   };
   
 }

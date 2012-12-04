@@ -30,28 +30,40 @@
 
 BR::Recognizer::Recognizer()
 {
-
+  id = BR::Recognizer::counter++;
 }
 
 BR::Recognizer::Recognizer(int camID)
 {
+  id = BR::Recognizer::counter++;
   open(camID);
 }
 
 BR::Recognizer::Recognizer(std::string movie_filename)
 {
+  id = BR::Recognizer::counter++;
   open(movie_filename);
 }
 
 bool BR::Recognizer::open(int camID)
 {
+  cam = true;
+  cam_id = camID;
   return source.open(camID);
 }
 
 bool BR::Recognizer::open(std::string movie_filename)
 {
+  cam = false;
+  filename = movie_filename;
   return source.open(movie_filename);
 }
+
+void BR::Recognizer::setDatabase(const BR::Database db)
+{
+  this->db = db;
+}
+
 
 BR::Book & BR::Recognizer::getCurrentBook()
 {
@@ -61,6 +73,14 @@ BR::Book & BR::Recognizer::getCurrentBook()
 const cv::Mat& BR::Recognizer::getCurrentFrame() const
 {
   return current_frame;
+}
+void BR::Recognizer::showCurrentFrame(bool show_book) const
+{
+  Mat output_frame = current_frame.clone();
+  if (show_book && current_book) {
+    //TODO: add to current frame info about book
+  }
+  cv::imshow(windowID(), output_frame);
 }
 
 bool BR::Recognizer::next()
@@ -75,6 +95,21 @@ bool BR::Recognizer::next()
     return false;
 }
 
+std::string BR::Recognizer::windowID()
+{
+  if (window_id.empty()) {
+    std::stringstream ss;
+    ss << "Recognizer " << id << " (";
+    if (cam) {
+      ss << "Camera " << cam_id;
+    } else {
+      ss << "Movie " << filename;
+    }
+    ss << ")";
+    window_id = ss.str();
+  }
+  return window_id;
+}
 
 
 
