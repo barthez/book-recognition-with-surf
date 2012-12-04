@@ -28,6 +28,8 @@
 
 #include "Recognizer.h"
 
+int BR::Recognizer::counter = 0;
+
 BR::Recognizer::Recognizer()
 {
   id = BR::Recognizer::counter++;
@@ -74,9 +76,9 @@ const cv::Mat& BR::Recognizer::getCurrentFrame() const
 {
   return current_frame;
 }
-void BR::Recognizer::showCurrentFrame(bool show_book) const
+void BR::Recognizer::showCurrentFrame(bool show_book)
 {
-  Mat output_frame = current_frame.clone();
+  cv::Mat output_frame = current_frame.clone();
   if (show_book && current_book) {
     //TODO: add to current frame info about book
   }

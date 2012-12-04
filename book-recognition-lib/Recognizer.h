@@ -50,12 +50,12 @@ namespace BR {
     void setDatabase(const Database db);
     
     const cv::Mat & getCurrentFrame() const;
-    void showCurrentFrame(bool show_book = true) const;
+    void showCurrentFrame(bool show_book = true);
     Book & getCurrentBook();
     bool next();
     
   private:
-    static int counter = 0;
+    static int counter;
     int id;
     std::string window_id;
     std::string filename;
