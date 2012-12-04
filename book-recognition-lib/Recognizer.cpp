@@ -53,7 +53,7 @@ bool BR::Recognizer::open(std::string movie_filename)
   return source.open(movie_filename);
 }
 
-BR::Book BR::Recognizer::getCurrentBook()
+BR::Book & BR::Recognizer::getCurrentBook()
 {
   return current_book;
 }
