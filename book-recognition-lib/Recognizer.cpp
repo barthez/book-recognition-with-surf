@@ -27,6 +27,7 @@
 
 
 #include "Recognizer.h"
+#include "Exceptions.h"
 
 int BR::Recognizer::counter = 0;
 
@@ -74,11 +75,12 @@ BR::Book & BR::Recognizer::getCurrentBook()
 
 const cv::Mat& BR::Recognizer::getCurrentFrame() const
 {
+  if (current_frame.empty()) throw new RecognizerException("Call next() before geting frame");
   return current_frame;
 }
 void BR::Recognizer::showCurrentFrame(bool show_book)
 {
-  cv::Mat output_frame = current_frame.clone();
+  cv::Mat output_frame = getCurrentFrame().clone();
   if (show_book && current_book) {
     //TODO: add to current frame info about book
   }
@@ -87,7 +89,8 @@ void BR::Recognizer::showCurrentFrame(bool show_book)
 
 bool BR::Recognizer::next()
 {
-    if (source.read(current_frame)) {
+  if (! source.isOpened() ) throw new RecognizerException("Select source before running");
+  if (source.read(current_frame)) {
       //TODO: Do the magic
       //cv::Mat tmp_img;
       //prepate_image(current_frame, tmp_img)
