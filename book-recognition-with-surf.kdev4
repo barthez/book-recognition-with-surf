@@ -1,0 +1,4 @@
+[Project]
+Name=book-recognition-with-surf
+Manager=KDevCMakeManager
+VersionControl=kdevgit
