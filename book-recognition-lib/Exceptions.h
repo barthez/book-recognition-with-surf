@@ -34,7 +34,7 @@
 
 namespace BR {
   
-  class Exception : public std::exception
+  class Exception
   {
   public:
     Exception(std::string msg) : message(msg) {};

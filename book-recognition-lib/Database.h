@@ -30,6 +30,7 @@
 #define DATABASE_H
 
 #include <string>
+#include <list>
 #include <tinyxml.h>
 #include <opencv2/core/core.hpp>
 #include "Book.h"
@@ -47,7 +48,7 @@ namespace BR {
     
     bool find(cv::Mat image, Book & out);
   private:    
-    std::vector<Book> books;
+    std::list<Book> books;
     bool autosave;
     std::string filename;
   };
