@@ -43,8 +43,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Tomko\Documents\GitHub\book-recognition-with-surf\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Tomko\Documents\GitHub\book-recognition-with-surf\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\book-recognition-with-surf\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\book-recognition-with-surf\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
