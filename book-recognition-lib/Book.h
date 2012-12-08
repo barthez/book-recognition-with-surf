@@ -30,6 +30,7 @@
 #define BOOK_H
 #include <string>
 #include <opencv2/core/core.hpp>
+#include <opencv2/nonfree/features2d.hpp>
 
 namespace BR {
 
@@ -46,6 +47,18 @@ namespace BR {
   private:
     std::string isbn, title, author;
     cv::Mat image;
+
+    void storeAndProcessImage(std::string filename);
+
+    //for surf
+    cv::vector<cv::KeyPoint> keypoints;
+    cv::Mat descriptors;
+
+    //statics
+    static cv::SURF SURF;
+    static cv::FeatureDetector *detector;
+    static cv::DescriptorExtractor *extractor;
+    //static cv::BFMatcher matcher;
   };
   
 }

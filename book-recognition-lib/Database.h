@@ -45,6 +45,7 @@ namespace BR {
     
     void load(std::string filename);    
     void save(std::string filename);
+    void addBook(Book & book);
     
     bool find(cv::Mat image, Book & out);
   private:    
