@@ -43,8 +43,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>..\..\book-recognition-with-surf\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>..\..\book-recognition-with-surf\book-recognition-lib;$(IncludePath)</IncludePath>
+    <LibraryPath>..\book-recognition-with-surf\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\book-recognition-with-surf\book-recognition-lib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
