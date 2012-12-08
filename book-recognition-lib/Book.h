@@ -53,6 +53,7 @@ namespace BR {
     //for surf
     cv::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
+    friend class Database;
 
     //statics
     static cv::SURF SURF;

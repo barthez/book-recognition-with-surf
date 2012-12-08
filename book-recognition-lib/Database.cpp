@@ -28,6 +28,10 @@
 
 #include "Database.h"
 
+#include <opencv2\highgui\highgui.hpp>
+
+cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::create("BruteForce");
+
 BR::Database::Database(bool as)
 {
   autosave = as;
@@ -60,6 +64,13 @@ bool BR::Database::find(cv::Mat image, BR::Book& out)
   matcher.match( descriptors_1, descriptors_2, matches );
   full exapmle http://docs.opencv.org/doc/tutorials/features2d/feature_description/feature_description.html#feature-description
   */
+  matcher = cv::DescriptorMatcher::create("BruteForce");
+  std::vector< cv::DMatch > matches;
+  matcher->match(books.front()->descriptors, books.back()->descriptors, matches);
+  cv::Mat tmp;
+  cv::drawMatches(books.front()->image, books.front()->keypoints, books.back()->image, books.back()->keypoints, matches, tmp);
+  cv::imwrite("file.bmp", tmp);
+  
   return true;
 }
 

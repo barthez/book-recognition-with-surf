@@ -52,6 +52,9 @@ namespace BR {
     std::list<Book*> books;
     bool autosave;
     std::string filename;
+
+    //for recognizing
+    static cv::Ptr<cv::DescriptorMatcher> matcher;
   };
 
 }

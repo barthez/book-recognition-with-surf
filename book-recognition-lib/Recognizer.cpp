@@ -29,6 +29,8 @@
 #include "Recognizer.h"
 #include "Exceptions.h"
 
+#include <opencv2\imgproc\imgproc.hpp>
+
 int BR::Recognizer::counter = 0;
 
 BR::Recognizer::Recognizer()
@@ -93,6 +95,7 @@ bool BR::Recognizer::next()
   if (source.read(current_frame)) {
       //TODO: Do the magic
       cv::Mat tmp_img;
+      cv::cvtColor(current_frame, tmp_img, cv::COLOR_RGB2GRAY);
       //cv::(current_frame, tmp_img) //change to grayscale
       db.find(tmp_img, current_book);
       return true;

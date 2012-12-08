@@ -57,7 +57,7 @@ cv::Mat BR::Book::getImage() const
   return image;
 }
 
-void BR::Book::storeAndProcessImage(std::string filename)
+void BR::Book::storeAndProcessImage (std::string filename)
 {
   image = cv::imread(filename, 0); //loading grayscale image
   SURF(image, cv::Mat(), keypoints, descriptors);
