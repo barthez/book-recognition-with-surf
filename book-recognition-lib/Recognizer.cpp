@@ -62,7 +62,7 @@ bool BR::Recognizer::open(std::string movie_filename)
   return source.open(movie_filename);
 }
 
-void BR::Recognizer::setDatabase(const BR::Database db)
+void BR::Recognizer::setDatabase(const BR::Database & db)
 {
   this->db = db;
 }

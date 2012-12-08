@@ -64,7 +64,10 @@ BR::Database::~Database()
   }
 }
 
-
+void BR::Database::addBook(Book * book)
+{
+  books.push_back(book);
+}
 
 
 

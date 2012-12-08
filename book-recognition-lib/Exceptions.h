@@ -29,7 +29,6 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 
-#include <exception>
 #include <string>
 
 namespace BR {
