@@ -67,11 +67,12 @@ bool BR::Database::find(cv::Mat image, BR::Book& out)
   matcher = cv::DescriptorMatcher::create("BruteForce");
   std::vector< cv::DMatch > matches;
   matcher->match(books.front()->descriptors, books.back()->descriptors, matches);
+  //DEBUG
   cv::Mat tmp;
   cv::drawMatches(books.front()->image, books.front()->keypoints, books.back()->image, books.back()->keypoints, matches, tmp);
   cv::imwrite("file.bmp", tmp);
-  
-  return true;
+  //DEBUG
+  return true; 
 }
 
 

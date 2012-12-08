@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   
   Book book1("1", "1", "1", "data/DSC03425.JPG");
   std::cout << "1";
-  Book book2("1", "1", "1", "data/DSC03423.JPG");
+  Book book2("1", "1", "1", "data/DSC03425.JPG");
   std::cout << "2";
  /* Book book3("1", "1", "1", "data/DSC03422.JPG");
   std::cout << "3";
