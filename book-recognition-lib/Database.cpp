@@ -53,6 +53,13 @@ void BR::Database::save(std::string filename)
 bool BR::Database::find(cv::Mat image, BR::Book& out)
 {
   //TODO SURF magic
+  //get descriptors like in Book::storeAndProcessImage use some comparator some like this
+   //-- Step 3: Matching descriptor vectors with a brute force matcher
+  /*BruteForceMatcher< L2<float> > matcher;
+  std::vector< DMatch > matches;
+  matcher.match( descriptors_1, descriptors_2, matches );
+  full exapmle http://docs.opencv.org/doc/tutorials/features2d/feature_description/feature_description.html#feature-description
+  */
   return true;
 }
 

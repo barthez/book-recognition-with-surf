@@ -92,9 +92,9 @@ bool BR::Recognizer::next()
   if (! source.isOpened() ) throw new RecognizerException("Select source before running");
   if (source.read(current_frame)) {
       //TODO: Do the magic
-      //cv::Mat tmp_img;
-      //prepate_image(current_frame, tmp_img)
-      //db.find(tmp_img, current_book);
+      cv::Mat tmp_img;
+      //cv::(current_frame, tmp_img) //change to grayscale
+      db.find(tmp_img, current_book);
       return true;
     }
     return false;
