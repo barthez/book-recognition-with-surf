@@ -29,9 +29,6 @@
 #include "Book.h"
 #include <opencv2/highgui/highgui.hpp>
 
-cv::DescriptorExtractor * BR::Book::extractor = cv::DescriptorExtractor::create("SURF");
-//cv::BFMatcher BR::Book::matcher = cv::BFMatcher(cv::NORM_L2);
-cv::FeatureDetector * BR::Book::detector = cv::FeatureDetector::create("SURF");
 cv::SURF BR::Book::SURF = cv::SURF(); //hessianThreshold ?
 
 BR::Book::Book()
@@ -64,9 +61,4 @@ void BR::Book::storeAndProcessImage(std::string filename)
 {
   image = cv::imread(filename, 0); //loading grayscale image
   SURF(image, cv::Mat(), keypoints, descriptors);
- /* detector = cv::FeatureDetector::create("SURF");
-  extractor = cv::DescriptorExtractor::create("SURF");
-  detector->detect(image, keypoints);
-  extractor->compute(image, keypoints,descriptors);*/
-
-}
+ }

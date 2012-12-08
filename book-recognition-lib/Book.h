@@ -56,8 +56,6 @@ namespace BR {
 
     //statics
     static cv::SURF SURF;
-    static cv::FeatureDetector *detector;
-    static cv::DescriptorExtractor *extractor;
     //static cv::BFMatcher matcher;
   };
   
