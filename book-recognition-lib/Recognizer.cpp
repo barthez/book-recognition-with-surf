@@ -29,25 +29,28 @@
 #include "Recognizer.h"
 #include "Exceptions.h"
 
-#include <opencv2\imgproc\imgproc.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 int BR::Recognizer::counter = 0;
 
 BR::Recognizer::Recognizer()
 {
   id = BR::Recognizer::counter++;
+  current_book = NULL;
 }
 
 BR::Recognizer::Recognizer(int camID)
 {
   id = BR::Recognizer::counter++;
   open(camID);
+  current_book = NULL;
 }
 
 BR::Recognizer::Recognizer(std::string movie_filename)
 {
   id = BR::Recognizer::counter++;
   open(movie_filename);
+  current_book = NULL;
 }
 
 bool BR::Recognizer::open(int camID)
@@ -72,7 +75,7 @@ void BR::Recognizer::setDatabase(const BR::Database & db)
 
 BR::Book & BR::Recognizer::getCurrentBook()
 {
-  return current_book;
+  return *current_book;
 }
 
 const cv::Mat& BR::Recognizer::getCurrentFrame() const
@@ -85,19 +88,30 @@ void BR::Recognizer::showCurrentFrame(bool show_book)
   cv::Mat output_frame = getCurrentFrame().clone();
   if (show_book && current_book) {
     //TODO: add to current frame info about book
+    //std::cout << current_book->toString() << '\n';
+    cv::putText(output_frame, current_book->toString(),cv::Point(20,20),cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,0));
   }
   cv::imshow(windowID(), output_frame);
 }
 
-bool BR::Recognizer::next()
+bool BR::Recognizer::next(bool find)
 {
   if (! source.isOpened() ) throw new RecognizerException("Select source before running");
   if (source.read(current_frame)) {
       //TODO: Do the magic
-      cv::Mat tmp_img;
-      cv::cvtColor(current_frame, tmp_img, cv::COLOR_RGB2GRAY);
-      //cv::(current_frame, tmp_img) //change to grayscale
-      db.find(tmp_img, current_book);
+      cv::Mat tmp_img, canny_img, out;
+      cv::cvtColor(current_frame, tmp_img, cv::COLOR_BGR2GRAY);
+      //cv::cvtColor(tmp_img, out, cv::COLOR_GRAY2BGR);
+      //current_frame = tmp_img;
+      //cv::Mat mask = cv::Mat::zeros(out.rows, out.cols, CV_32FC1);
+      //int w = current_frame.cols/2;
+      //int h = current_frame.rows/2;
+      //cv::rectangle(mask, cv::Point(w - 150, h-200), cv::Point(w+150, h+200), cv::Scalar(1,1,1), CV_FILLED);
+      //tmp_img.convertTo(out, CV_32F, 1.0f/255.0f);
+      //out = out.mul(mask);
+      //out.convertTo(tmp_img, CV_8U, 255);
+      
+      if (find) db.find(tmp_img, &current_book);
       return true;
     }
     return false;

@@ -28,7 +28,7 @@
 
 #include "Database.h"
 
-#include <opencv2\highgui\highgui.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::create("BruteForce");
 
@@ -54,7 +54,7 @@ void BR::Database::save(std::string filename)
   //Save database to XML file
 }
 
-bool BR::Database::find(cv::Mat image, BR::Book& out)
+bool BR::Database::find(cv::Mat image, BR::Book ** out)
 {
   //TODO SURF magic
   //get descriptors like in Book::storeAndProcessImage use some comparator some like this
@@ -64,13 +64,29 @@ bool BR::Database::find(cv::Mat image, BR::Book& out)
   matcher.match( descriptors_1, descriptors_2, matches );
   full exapmle http://docs.opencv.org/doc/tutorials/features2d/feature_description/feature_description.html#feature-description
   */
+  cv::vector<cv::KeyPoint> keypoints;
+  cv::Mat descriptors;
+  Book::SURF(image, cv::Mat(), keypoints, descriptors);
+  uint max = 0;
   matcher = cv::DescriptorMatcher::create("BruteForce");
-  std::vector< cv::DMatch > matches;
-  matcher->match(books.front()->descriptors, books.back()->descriptors, matches);
+  for(auto book = books.begin(); book != books.end(); ++book) {
+    std::vector< cv::DMatch > matches;  
+    //std::vector< std::vector< cv::DMatch > > matches;  
+    matcher->match((*book)->descriptors,descriptors, matches);
+    std::cout << (*book)->toString() << ": " << (*book)->keypoints.size() << ", " << matches.size() << '\n';
+    //TODO: When it match or not?
+    //if (matches.size() > max) {
+    //  max = matches.size();
+    //  *out = *book;
+    //}
+  }
+  //std::cout << out->toString() << ": " << max << '\n';
+  
+  
   //DEBUG
-  cv::Mat tmp;
-  cv::drawMatches(books.front()->image, books.front()->keypoints, books.back()->image, books.back()->keypoints, matches, tmp);
-  cv::imwrite("file.bmp", tmp);
+  //cv::Mat tmp;
+  //cv::drawMatches(books.front()->image, books.front()->keypoints, books.back()->image, books.back()->keypoints, matches, tmp);
+  //cv::imwrite("file.bmp", tmp);
   //DEBUG
   return true; 
 }

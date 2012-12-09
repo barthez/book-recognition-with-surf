@@ -42,6 +42,8 @@ namespace BR {
     Book(std::string isbn, std::string title, std::string author, std::string image);
     
     cv::Mat getImage() const;
+    
+    std::string toString() const;
     operator bool () const;
     bool empty() const;
   private:

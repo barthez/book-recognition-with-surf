@@ -47,7 +47,7 @@ namespace BR {
     void save(std::string filename);
     void addBook(Book * book);
     
-    bool find(cv::Mat image, Book & out);
+    bool find(cv::Mat image, Book ** out);
   private:    
     std::list<Book*> books;
     bool autosave;

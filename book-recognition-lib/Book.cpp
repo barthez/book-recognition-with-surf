@@ -57,6 +57,12 @@ cv::Mat BR::Book::getImage() const
   return image;
 }
 
+std::string BR::Book::toString() const {
+  std::stringstream ss;
+  ss << "(" << isbn << ") '" << title << "' - " << author;
+  return ss.str();
+}
+
 void BR::Book::storeAndProcessImage (std::string filename)
 {
   image = cv::imread(filename, 0); //loading grayscale image

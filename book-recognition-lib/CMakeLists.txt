@@ -8,6 +8,8 @@ set(book_lib_SOURCES
   Database.cpp
   Book.cpp
   Exceptions.cpp)
+  
+include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_library(book-recognition-lib ${book_lib_SOURCES})
+add_library(book-recognition-lib ${book_lib_SOURCES} )
 target_link_libraries(book-recognition-lib ${OpenCV_LIBS})

@@ -7,7 +7,7 @@ find_package(OpenCV REQUIRED)
 
 add_subdirectory(book-recognition-lib)
 
-include_directories(src/ book-recognition-lib)
+include_directories(src/ book-recognition-lib ${OpenCV_INCLUDE_DIRS})
 
 set(book_SOURCES
   src/main.cpp)

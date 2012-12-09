@@ -52,7 +52,7 @@ namespace BR {
     const cv::Mat & getCurrentFrame() const;
     void showCurrentFrame(bool show_book = true);
     Book & getCurrentBook();
-    bool next();
+    bool next(bool find = false);
     
   private:
     static int counter;
@@ -65,7 +65,7 @@ namespace BR {
     cv::VideoCapture source;
     cv::Mat current_frame;
     Database db;
-    Book current_book;
+    Book * current_book;
     
     protected:
     std::string windowID();
