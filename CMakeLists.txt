@@ -12,7 +12,7 @@ include_directories(src/ book-recognition-lib ${OpenCV_INCLUDE_DIRS})
 set(book_SOURCES
   src/main.cpp)
 
-add_executable(book-recognition-with-surf ${book_SOURCES})
-target_link_libraries(book-recognition-with-surf ${OpenCV_LIBS} book-recognition-lib)
+add_executable(book-recognition ${book_SOURCES})
+target_link_libraries(book-recognition  ${OpenCV_LIBS} book-recognition-lib)
 
 #install(TARGETS book-recognition-with-surf RUNTIME DESTINATION bin)

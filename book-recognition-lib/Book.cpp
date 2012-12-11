@@ -29,7 +29,7 @@
 #include "Book.h"
 #include <opencv2/highgui/highgui.hpp>
 
-cv::SURF BR::Book::SURF = cv::SURF(); //hessianThreshold ?
+cv::SURF BR::Book::SURF = cv::SURF(400); //hessianThreshold ?
 
 BR::Book::Book()
 {

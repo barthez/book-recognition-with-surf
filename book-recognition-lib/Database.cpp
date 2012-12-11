@@ -29,66 +29,92 @@
 #include "Database.h"
 
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 
-cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::create("BruteForce");
+cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::create("FlannBased");
 
-BR::Database::Database(bool as)
+void BR::Database::initialize(bool as)
 {
   autosave = as;
 }
 
+
+BR::Database::Database(bool as)
+{
+  initialize(as);
+}
+
 BR::Database::Database(std::string filename, bool as)
 {
-  autosave = as;
-  this->filename = filename;
+  initialize(as);
   load(filename);
 }
 
 void BR::Database::load(std::string filename)
 {
-  //Parse XML and load books
+  this->filename = filename;
+  //TODO: Parse XML and load books
 }
 
 void BR::Database::save(std::string filename)
 {
-  //Save database to XML file
+  //TODO: Save database to XML file
 }
 
-bool BR::Database::find(cv::Mat image, BR::Book ** out)
+BR::Book * BR::Database::find(cv::Mat image, cv::Mat& H)
 {
-  //TODO SURF magic
-  //get descriptors like in Book::storeAndProcessImage use some comparator some like this
-   //-- Step 3: Matching descriptor vectors with a brute force matcher
-  /*BruteForceMatcher< L2<float> > matcher;
-  std::vector< DMatch > matches;
-  matcher.match( descriptors_1, descriptors_2, matches );
-  full exapmle http://docs.opencv.org/doc/tutorials/features2d/feature_description/feature_description.html#feature-description
-  */
-  cv::vector<cv::KeyPoint> keypoints;
-  cv::Mat descriptors;
-  Book::SURF(image, cv::Mat(), keypoints, descriptors);
-  uint max = 0;
-  matcher = cv::DescriptorMatcher::create("BruteForce");
+  double min_dist, threshold, global_minimum;
+  std::vector< cv::DMatch > matches_of_best;
+  //std::vector< std::vector< cv::DMatch > > matches_list;
+  global_minimum = 100;
+  Book * best_book = NULL;
+  
+  Book::SURF(image, cv::Mat(), scene_keypoints, scene_descriptors);
+  
   for(auto book = books.begin(); book != books.end(); ++book) {
-    std::vector< cv::DMatch > matches;  
-    //std::vector< std::vector< cv::DMatch > > matches;  
-    matcher->match((*book)->descriptors,descriptors, matches);
-    std::cout << (*book)->toString() << ": " << (*book)->keypoints.size() << ", " << matches.size() << '\n';
-    //TODO: When it match or not?
-    //if (matches.size() > max) {
-    //  max = matches.size();
-    //  *out = *book;
-    //}
+    std::vector< cv::DMatch > matches, good_matches;  
+    matcher->match((*book)->descriptors, scene_descriptors, matches);
+    good_matches = std::vector< cv::DMatch >(matches.size());
+    auto result = std::minmax_element(matches.begin(), 
+                                              matches.end(), 
+                                              [](const cv::DMatch &a, const cv::DMatch &b) -> bool {return a.distance < b.distance;});
+    
+    min_dist = result.first->distance;
+    
+    //matches_list.push_back(matches);
+    
+    if (global_minimum > min_dist) {
+       best_book = *book;
+       matches_of_best = matches;
+       global_minimum = min_dist;
+    }
+    
   }
-  //std::cout << out->toString() << ": " << max << '\n';
   
   
-  //DEBUG
-  //cv::Mat tmp;
-  //cv::drawMatches(books.front()->image, books.front()->keypoints, books.back()->image, books.back()->keypoints, matches, tmp);
-  //cv::imwrite("file.bmp", tmp);
-  //DEBUG
-  return true; 
+  threshold = global_minimum*3;
+  std::vector< cv::DMatch > good_matches;  
+  
+  good_matches = std::vector< cv::DMatch >(matches_of_best.size());
+  
+  auto last_good = std::copy_if(matches_of_best.begin(), 
+                      matches_of_best.end(), 
+                      good_matches.begin(), 
+                      [&threshold](const cv::DMatch &a) -> bool { return a.distance < threshold; });
+  
+  good_matches.resize(last_good - good_matches.begin());
+  
+  std::vector<cv::Point2f> object, scene;
+  for(auto it=good_matches.begin(); it != good_matches.end(); ++it) {
+     object.push_back( best_book->keypoints[it->queryIdx].pt );
+     scene.push_back( scene_keypoints[it->trainIdx].pt );
+  }
+  
+  H = cv::findHomography(object, scene, CV_RANSAC);
+  
+  //TODO: Find best match by size (area) of affilite transformation of book cover. Bigger area -> better match (?)
+  
+  return best_book; 
 }
 
 

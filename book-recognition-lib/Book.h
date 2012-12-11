@@ -32,7 +32,10 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/nonfree/features2d.hpp>
 
+
 namespace BR {
+
+  class Recognizer;
 
   class Book
   {
@@ -56,6 +59,7 @@ namespace BR {
     cv::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
     friend class Database;
+    friend class Recognizer;
 
     //statics
     static cv::SURF SURF;

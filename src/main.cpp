@@ -23,6 +23,8 @@ int main(int argc, char **argv)
   db.addBook(&book5);
   db.addBook(&book6);
   
+  std::cout << "Controls\n\tq - quit\n\tf - find matching book\n\th - hold current frame\n\tu - unhold\n";
+  
   try
   {
     Recognizer r("data/MOV03427.MPG");
@@ -35,6 +37,8 @@ int main(int argc, char **argv)
       ch = cv::waitKey(10);
       if (ch == 'q') break;
       if (ch == 'f') and_find = true;
+      if (ch == 'h') r.hold(true);
+      if (ch == 'u') r.hold(false);
     }
   }
   catch (Exception e)

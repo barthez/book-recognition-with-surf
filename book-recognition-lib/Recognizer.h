@@ -53,6 +53,7 @@ namespace BR {
     void showCurrentFrame(bool show_book = true);
     Book & getCurrentBook();
     bool next(bool find = false);
+    bool hold(bool h = true);
     
   private:
     static int counter;
@@ -61,14 +62,20 @@ namespace BR {
     std::string filename;
     int cam_id;
     bool cam;
+    bool hold_flag;
     
     cv::VideoCapture source;
     cv::Mat current_frame;
     Database db;
     Book * current_book;
     
+    cv::Mat homography;
+    
+    void drawBookContour();
+    
     protected:
     std::string windowID();
+    void initialize();
   };
   
 }

@@ -33,24 +33,29 @@
 
 int BR::Recognizer::counter = 0;
 
-BR::Recognizer::Recognizer()
+void BR::Recognizer::initialize()
 {
   id = BR::Recognizer::counter++;
   current_book = NULL;
+  hold_flag = false;
+}
+
+
+BR::Recognizer::Recognizer()
+{
+  initialize();
 }
 
 BR::Recognizer::Recognizer(int camID)
 {
-  id = BR::Recognizer::counter++;
+  initialize();
   open(camID);
-  current_book = NULL;
 }
 
 BR::Recognizer::Recognizer(std::string movie_filename)
 {
-  id = BR::Recognizer::counter++;
+  initialize();
   open(movie_filename);
-  current_book = NULL;
 }
 
 bool BR::Recognizer::open(int camID)
@@ -87,9 +92,20 @@ void BR::Recognizer::showCurrentFrame(bool show_book)
 {
   cv::Mat output_frame = getCurrentFrame().clone();
   if (show_book && current_book) {
-    //TODO: add to current frame info about book
-    //std::cout << current_book->toString() << '\n';
     cv::putText(output_frame, current_book->toString(),cv::Point(20,20),cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,0));
+    
+    std::vector< cv::Point2f > object_corners(4);
+    std::vector< cv::Point2f > scene_corners(4);
+    object_corners[0] = cv::Point(0, 0);
+    object_corners[1] = cv::Point(current_book->image.cols, 0);
+    object_corners[2] = cv::Point(current_book->image.cols, current_book->image.rows);
+    object_corners[3] = cv::Point(0, current_book->image.rows);
+    
+    cv::perspectiveTransform( object_corners, scene_corners, homography);
+    for(int i=0; i<4; ++i) {
+      //std::cout << "Point(" << scene_corners[i].x << ", " << scene_corners[i].y << ")\n";
+      cv::line(output_frame, scene_corners[i], scene_corners[ (i+1) %4], cv::Scalar(0, 255, 0), 4);
+    }
   }
   cv::imshow(windowID(), output_frame);
 }
@@ -97,25 +113,32 @@ void BR::Recognizer::showCurrentFrame(bool show_book)
 bool BR::Recognizer::next(bool find)
 {
   if (! source.isOpened() ) throw new RecognizerException("Select source before running");
+  if (hold_flag) return true;
+  
   if (source.read(current_frame)) {
-      //TODO: Do the magic
-      cv::Mat tmp_img, canny_img, out;
+      cv::Mat tmp_img;
       cv::cvtColor(current_frame, tmp_img, cv::COLOR_BGR2GRAY);
-      //cv::cvtColor(tmp_img, out, cv::COLOR_GRAY2BGR);
-      //current_frame = tmp_img;
-      //cv::Mat mask = cv::Mat::zeros(out.rows, out.cols, CV_32FC1);
-      //int w = current_frame.cols/2;
-      //int h = current_frame.rows/2;
-      //cv::rectangle(mask, cv::Point(w - 150, h-200), cv::Point(w+150, h+200), cv::Scalar(1,1,1), CV_FILLED);
-      //tmp_img.convertTo(out, CV_32F, 1.0f/255.0f);
-      //out = out.mul(mask);
-      //out.convertTo(tmp_img, CV_8U, 255);
-      
-      if (find) db.find(tmp_img, &current_book);
+      if (find) {
+        current_book = db.find(tmp_img, homography);
+        
+        hold();
+      }
       return true;
     }
     return false;
 }
+
+bool BR::Recognizer::hold(bool h)
+{
+  bool old = hold_flag;
+  hold_flag = h;
+  if (!hold_flag) {
+    current_book = NULL;
+    homography = cv::Mat();
+  }
+  return old;
+}
+
 
 std::string BR::Recognizer::windowID()
 {

@@ -47,14 +47,17 @@ namespace BR {
     void save(std::string filename);
     void addBook(Book * book);
     
-    bool find(cv::Mat image, Book ** out);
+    Book* find(cv::Mat image, cv::Mat & H);
   private:    
-    std::list<Book*> books;
+    void initialize(bool as);
+    std::vector<Book*> books;
     bool autosave;
     std::string filename;
 
     //for recognizing
-    static cv::Ptr<cv::DescriptorMatcher> matcher;
+    static cv::Ptr<cv::DescriptorMatcher> matcher; 
+    cv::vector<cv::KeyPoint> scene_keypoints;
+    cv::Mat scene_descriptors;
   };
 
 }
