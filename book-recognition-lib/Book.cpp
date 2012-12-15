@@ -65,6 +65,7 @@ std::string BR::Book::toString() const {
 
 void BR::Book::storeAndProcessImage (std::string filename)
 {
+  this->filename = filename.substr(0,filename.length() - 3) + "xml";
   image = cv::imread(filename, 0); //loading grayscale image
   SURF(image, cv::Mat(), keypoints, descriptors);
  }

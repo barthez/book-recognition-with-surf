@@ -30,6 +30,7 @@
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <tinyxml.h>
 
 cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::create("FlannBased");
 
@@ -58,6 +59,41 @@ void BR::Database::load(std::string filename)
 
 void BR::Database::save(std::string filename)
 {
+  TiXmlDocument document(filename.c_str());
+  document.LinkEndChild(new TiXmlDeclaration("1.0", "", "" ));
+  std::for_each(books.begin(), books.end(), [this, &document](Book * book)
+  {
+    //create XML
+    TiXmlElement * book_xml = new TiXmlElement("book");
+    TiXmlElement * isbn = new TiXmlElement("isbn");
+    isbn->LinkEndChild(new TiXmlText(book->isbn.c_str()));
+    TiXmlElement * title = new TiXmlElement("title");
+    title->LinkEndChild(new TiXmlText(book->title.c_str()));
+    TiXmlElement * author = new TiXmlElement("author");
+    author->LinkEndChild(new TiXmlText(book->author.c_str()));
+    TiXmlElement * image_filename = new TiXmlElement("image_filename");
+    image_filename->LinkEndChild(new TiXmlText(book->filename.c_str()));
+    /*TiXmlElement * keypoints_filename = new TiXmlElement("keypoints_filename");
+    keypoints_filename->LinkEndChild(new TiXmlText(book->kfilename.c_str()));
+    TiXmlElement * descriptors_filename = new TiXmlElement("descriptors_filename");
+    descriptors_filename->LinkEndChild(new TiXmlText(book->dfilename.c_str()));
+    */
+    book_xml->LinkEndChild(isbn);
+    book_xml->LinkEndChild(title);
+    book_xml->LinkEndChild(author);
+    book_xml->LinkEndChild(image_filename);
+    //book_xml->LinkEndChild(keypoints_filename);
+    //book_xml->LinkEndChild(descriptors_filename);
+    document.LinkEndChild(book_xml);
+
+    //store structures
+    cv::FileStorage fs(book->filename, cv::FileStorage::WRITE);
+    fs << "image" << book->image;
+    fs << "keypoints" << book->keypoints;
+    fs << "descriptors" << book->descriptors;
+    fs.release();
+  });
+  document.SaveFile();
   //TODO: Save database to XML file
 }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<book>
+    <isbn>ISBN</isbn>
+    <title>Kot w stanie czystym</title>
+    <author>Terry Prachet</author>
+    <image_filename>data/pratchett.xml</image_filename>
+</book>

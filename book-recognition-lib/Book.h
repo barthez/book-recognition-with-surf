@@ -35,8 +35,6 @@
 
 namespace BR {
 
-  class Recognizer;
-
   class Book
   {
 
@@ -50,7 +48,7 @@ namespace BR {
     operator bool () const;
     bool empty() const;
   private:
-    std::string isbn, title, author;
+    std::string isbn, title, author, filename;
     cv::Mat image;
 
     void storeAndProcessImage(std::string filename);

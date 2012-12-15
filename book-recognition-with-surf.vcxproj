@@ -43,8 +43,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>..\book-recognition-with-surf\lib;..\book-recognition-with-surf\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>..\book-recognition-with-surf\include;..\book-recognition-with-surf\book-recognition-lib;$(IncludePath)</IncludePath>
+    <LibraryPath>libs;Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>book-recognition-lib\;include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -54,7 +54,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Vfw32.lib;book-recognition-lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>tinyxml.lib;Vfw32.lib;book-recognition-lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
