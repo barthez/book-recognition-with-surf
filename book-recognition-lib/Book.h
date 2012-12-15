@@ -48,7 +48,9 @@ namespace BR {
     operator bool () const;
     bool empty() const;
   private:
-    std::string isbn, title, author, filename;
+    std::string isbn, title, author;
+    //where to store xml data about iimae
+    std::string filename ;
     cv::Mat image;
 
     void storeAndProcessImage(std::string filename);

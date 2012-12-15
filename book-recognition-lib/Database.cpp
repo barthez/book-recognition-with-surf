@@ -27,6 +27,7 @@
 
 
 #include "Database.h"
+#include "Exceptions.h"
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
@@ -54,7 +55,43 @@ BR::Database::Database(std::string filename, bool as)
 void BR::Database::load(std::string filename)
 {
   this->filename = filename;
-  //TODO: Parse XML and load books
+
+  TiXmlDocument document(filename.c_str());
+  if (!document.LoadFile())
+  {
+    throw DatabaseException("unamble to load file: " + filename);
+  }
+  TiXmlElement * element = document.FirstChildElement("book"); // skip XML declaration
+  do
+  {
+    Book * book = new Book();
+    //read XML
+    TiXmlElement * child = element->FirstChildElement("isbn");
+    book->isbn = child->GetText();
+    child = child->NextSiblingElement("title");
+    book->title = child->GetText();
+    child = child->NextSiblingElement("author");
+    book->author = child->GetText();
+    child = child->NextSiblingElement("image_filename");
+    book->filename = child->GetText();
+
+    //load structures
+    cv::FileStorage fs(book->filename, cv::FileStorage::READ);
+    fs["image"] >> book->image;
+    /*
+    std::ostringstream oss;
+    for (unsigned int i=0; i < book->keypoints.size(); ++i)
+    {
+      oss << i;
+      fs << oss.str() << book->keypoints[i];
+    }*/
+    //fs["keypoints"] >> book->keypoints;
+    cv::read(fs["keypoints"], book->keypoints);
+    fs["descriptors"] >> book->descriptors;
+    fs.release();
+    
+    books.push_back(book);
+  } while(element = element->NextSiblingElement("book"));
 }
 
 void BR::Database::save(std::string filename)
@@ -72,6 +109,7 @@ void BR::Database::save(std::string filename)
     TiXmlElement * author = new TiXmlElement("author");
     author->LinkEndChild(new TiXmlText(book->author.c_str()));
     TiXmlElement * image_filename = new TiXmlElement("image_filename");
+    image_filename->SetAttribute("keypoints_size", book->keypoints.size());
     image_filename->LinkEndChild(new TiXmlText(book->filename.c_str()));
     /*TiXmlElement * keypoints_filename = new TiXmlElement("keypoints_filename");
     keypoints_filename->LinkEndChild(new TiXmlText(book->kfilename.c_str()));
@@ -89,12 +127,18 @@ void BR::Database::save(std::string filename)
     //store structures
     cv::FileStorage fs(book->filename, cv::FileStorage::WRITE);
     fs << "image" << book->image;
-    fs << "keypoints" << book->keypoints;
+    /*std::ostringstream oss;
+    for (unsigned int i=0; i < book->keypoints.size(); ++i)
+    {
+      oss << i;
+      fs << oss.str() << book->keypoints[i];
+    }*/
+    //fs << "keypoints" << book->keypoints;
+    cv::write(fs, "keypoints", book->keypoints);
     fs << "descriptors" << book->descriptors;
     fs.release();
   });
   document.SaveFile();
-  //TODO: Save database to XML file
 }
 
 BR::Book * BR::Database::find(cv::Mat image, cv::Mat& H)

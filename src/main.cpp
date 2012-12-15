@@ -8,11 +8,12 @@ using namespace BR;
 int main(int argc, char **argv)
 {
   std::cout << "Loading books...";
-  Book book1("ISBN", "Kot w stanie czystym", "Terry Prachet", "data/pratchett.jpg");
   Database db2;
-  db2.addBook(&book1);
-  db2.save("db.xml");
+  //db2.addBook(&book1);
+  db2.load("db.xml");
+  //db2.save("db.xml");
   return 0;
+  Book book1("ISBN", "Kot w stanie czystym", "Terry Prachet", "data/pratchett.jpg");
   Book book2("ISBN", "O kotach", "Doris Lessing", "data/okotach.jpg");
   Book book3("ISBN", "Kot Simona", "Simon Tofield", "data/kot1.jpg");
   Book book4("ISBN", "Kot Simona za płotem", "Simon Tofield", "data/kot2.jpg");
