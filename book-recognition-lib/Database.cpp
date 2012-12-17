@@ -55,6 +55,7 @@ BR::Database::Database(std::string filename, bool as)
 void BR::Database::load(std::string filename)
 {
   this->filename = filename;
+  std::string book_filename;
 
   TiXmlDocument document(filename.c_str());
   if (!document.LoadFile())
@@ -73,19 +74,11 @@ void BR::Database::load(std::string filename)
     child = child->NextSiblingElement("author");
     book->author = child->GetText();
     child = child->NextSiblingElement("image_filename");
-    book->filename = child->GetText();
+    book_filename = child->GetText();
 
     //load structures
-    cv::FileStorage fs(book->filename, cv::FileStorage::READ);
+    cv::FileStorage fs(book_filename, cv::FileStorage::READ);
     fs["image"] >> book->image;
-    /*
-    std::ostringstream oss;
-    for (unsigned int i=0; i < book->keypoints.size(); ++i)
-    {
-      oss << i;
-      fs << oss.str() << book->keypoints[i];
-    }*/
-    //fs["keypoints"] >> book->keypoints;
     cv::read(fs["keypoints"], book->keypoints);
     fs["descriptors"] >> book->descriptors;
     fs.release();
@@ -96,10 +89,17 @@ void BR::Database::load(std::string filename)
 
 void BR::Database::save(std::string filename)
 {
+  //find 
+  size_t dir_pos = filename.find_last_of("\\/");
+  std::string filename_prefix = dir_pos == std::string::npos ? "" : filename.substr(0, filename.find_last_of("\\/") + 1);
+
   TiXmlDocument document(filename.c_str());
   document.LinkEndChild(new TiXmlDeclaration("1.0", "", "" ));
-  std::for_each(books.begin(), books.end(), [this, &document](Book * book)
+  std::for_each(books.begin(), books.end(), [this, &document, &filename_prefix](Book * book)
   {
+    //set image filename
+    std::string book_filename = filename_prefix + book->isbn + book->author + book->title + ".xml";
+
     //create XML
     TiXmlElement * book_xml = new TiXmlElement("book");
     TiXmlElement * isbn = new TiXmlElement("isbn");
@@ -109,31 +109,17 @@ void BR::Database::save(std::string filename)
     TiXmlElement * author = new TiXmlElement("author");
     author->LinkEndChild(new TiXmlText(book->author.c_str()));
     TiXmlElement * image_filename = new TiXmlElement("image_filename");
-    image_filename->SetAttribute("keypoints_size", book->keypoints.size());
-    image_filename->LinkEndChild(new TiXmlText(book->filename.c_str()));
-    /*TiXmlElement * keypoints_filename = new TiXmlElement("keypoints_filename");
-    keypoints_filename->LinkEndChild(new TiXmlText(book->kfilename.c_str()));
-    TiXmlElement * descriptors_filename = new TiXmlElement("descriptors_filename");
-    descriptors_filename->LinkEndChild(new TiXmlText(book->dfilename.c_str()));
-    */
+    image_filename->LinkEndChild(new TiXmlText(book_filename.c_str()));
+
     book_xml->LinkEndChild(isbn);
     book_xml->LinkEndChild(title);
     book_xml->LinkEndChild(author);
     book_xml->LinkEndChild(image_filename);
-    //book_xml->LinkEndChild(keypoints_filename);
-    //book_xml->LinkEndChild(descriptors_filename);
     document.LinkEndChild(book_xml);
 
     //store structures
-    cv::FileStorage fs(book->filename, cv::FileStorage::WRITE);
+    cv::FileStorage fs(book_filename, cv::FileStorage::WRITE);
     fs << "image" << book->image;
-    /*std::ostringstream oss;
-    for (unsigned int i=0; i < book->keypoints.size(); ++i)
-    {
-      oss << i;
-      fs << oss.str() << book->keypoints[i];
-    }*/
-    //fs << "keypoints" << book->keypoints;
     cv::write(fs, "keypoints", book->keypoints);
     fs << "descriptors" << book->descriptors;
     fs.release();

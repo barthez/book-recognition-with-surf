@@ -5,14 +5,10 @@
 
 using namespace BR;
 //!cv::initModule_features2d() || //
+
 int main(int argc, char **argv)
 {
-  std::cout << "Loading books...";
-  Database db2;
-  //db2.addBook(&book1);
-  db2.load("db.xml");
-  //db2.save("db.xml");
-  return 0;
+  /*
   Book book1("ISBN", "Kot w stanie czystym", "Terry Prachet", "data/pratchett.jpg");
   Book book2("ISBN", "O kotach", "Doris Lessing", "data/okotach.jpg");
   Book book3("ISBN", "Kot Simona", "Simon Tofield", "data/kot1.jpg");
@@ -27,7 +23,12 @@ int main(int argc, char **argv)
   db.addBook(&book4);
   db.addBook(&book5);
   db.addBook(&book6);
+  db.save("data/db.xml");
+  return 0;*/
   
+  Database db;
+  db.load("data/db.xml");
+
   std::cout << "Controls\n\tq - quit\n\tf - find matching book\n\th - hold current frame\n\tu - unhold\n";
   
   try
