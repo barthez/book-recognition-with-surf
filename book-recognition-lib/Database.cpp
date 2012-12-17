@@ -55,12 +55,13 @@ BR::Database::Database(std::string filename, bool as)
 void BR::Database::load(std::string filename)
 {
   this->filename = filename;
-  std::string book_filename;
+  std::string book_image_filename;
+  std::string book_info_filename;
 
   TiXmlDocument document(filename.c_str());
   if (!document.LoadFile())
   {
-    throw DatabaseException("unamble to load file: " + filename);
+    throw DatabaseException("unable to load file: " + filename);
   }
   TiXmlElement * element = document.FirstChildElement("book"); // skip XML declaration
   do
@@ -74,14 +75,18 @@ void BR::Database::load(std::string filename)
     child = child->NextSiblingElement("author");
     book->author = child->GetText();
     child = child->NextSiblingElement("image_filename");
-    book_filename = child->GetText();
+    book_image_filename = child->GetText();
+    child = child->NextSiblingElement("image_info_filename");
+    book_info_filename = child->GetText();
 
     //load structures
-    cv::FileStorage fs(book_filename, cv::FileStorage::READ);
-    fs["image"] >> book->image;
+    cv::FileStorage fs(book_info_filename, cv::FileStorage::READ);
     cv::read(fs["keypoints"], book->keypoints);
     fs["descriptors"] >> book->descriptors;
     fs.release();
+
+    //load image
+    book->image = cv::imread(book_image_filename);
     
     books.push_back(book);
   } while(element = element->NextSiblingElement("book"));
@@ -98,7 +103,8 @@ void BR::Database::save(std::string filename)
   std::for_each(books.begin(), books.end(), [this, &document, &filename_prefix](Book * book)
   {
     //set image filename
-    std::string book_filename = filename_prefix + book->isbn + book->author + book->title + ".xml";
+    std::string book_info_filename = filename_prefix + book->isbn + book->author + book->title + ".xml";
+    std::string book_image_filename = filename_prefix + book->isbn + book->author + book->title + ".jpg";
 
     //create XML
     TiXmlElement * book_xml = new TiXmlElement("book");
@@ -109,17 +115,22 @@ void BR::Database::save(std::string filename)
     TiXmlElement * author = new TiXmlElement("author");
     author->LinkEndChild(new TiXmlText(book->author.c_str()));
     TiXmlElement * image_filename = new TiXmlElement("image_filename");
-    image_filename->LinkEndChild(new TiXmlText(book_filename.c_str()));
+    image_filename->LinkEndChild(new TiXmlText(book_image_filename.c_str()));
+    TiXmlElement * image_info_filename = new TiXmlElement("image_info_filename");
+    image_info_filename->LinkEndChild(new TiXmlText(book_info_filename.c_str()));
 
     book_xml->LinkEndChild(isbn);
     book_xml->LinkEndChild(title);
     book_xml->LinkEndChild(author);
     book_xml->LinkEndChild(image_filename);
+    book_xml->LinkEndChild(image_info_filename);
     document.LinkEndChild(book_xml);
 
+    //store image
+    cv::imwrite(book_image_filename, book->image);
+
     //store structures
-    cv::FileStorage fs(book_filename, cv::FileStorage::WRITE);
-    fs << "image" << book->image;
+    cv::FileStorage fs(book_info_filename, cv::FileStorage::WRITE);
     cv::write(fs, "keypoints", book->keypoints);
     fs << "descriptors" << book->descriptors;
     fs.release();

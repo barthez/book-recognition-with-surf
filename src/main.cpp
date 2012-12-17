@@ -8,7 +8,9 @@ using namespace BR;
 
 int main(int argc, char **argv)
 {
+  Database db;
   /*
+  std::cout << "Loading books ... ";
   Book book1("ISBN", "Kot w stanie czystym", "Terry Prachet", "data/pratchett.jpg");
   Book book2("ISBN", "O kotach", "Doris Lessing", "data/okotach.jpg");
   Book book3("ISBN", "Kot Simona", "Simon Tofield", "data/kot1.jpg");
@@ -16,18 +18,16 @@ int main(int argc, char **argv)
   Book book5("ISBN", "Kot Simona i kociokwik", "Simon Tofield", "data/kot3.jpg");
   Book book6("ISBN", "Kot Simona kontra reszta świata", "Simon Tofield", "data/kot4.jpg");
   std::cout << "end\n";
-  Database db;
   db.addBook(&book1);
   db.addBook(&book2);
   db.addBook(&book3);
   db.addBook(&book4);
   db.addBook(&book5);
   db.addBook(&book6);
-  db.save("data/db.xml");
-  return 0;*/
-  
-  Database db;
-  db.load("data/db.xml");
+  db.save("db/db.xml");
+  return 0;
+  //*/
+  db.load("db/db.xml");
 
   std::cout << "Controls\n\tq - quit\n\tf - find matching book\n\th - hold current frame\n\tu - unhold\n";
   
