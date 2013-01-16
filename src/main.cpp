@@ -1,13 +1,21 @@
 #include <iostream>
 
+#include "MainWindow.h"
+
 #include <Recognizer.h>
 #include <Exceptions.h>
 
 using namespace BR;
-//!cv::initModule_features2d() || //
 
 int main(int argc, char **argv)
 {
+  Gtk::Main brws(argc, argv);
+
+  MainWindow win;
+
+  Gtk::Main::run(win);
+
+  return 0;
   Database db;
   /*
   std::cout << "Loading books ... ";
