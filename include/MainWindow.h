@@ -33,6 +33,7 @@ private:
 
   BR::Database db;
   BR::Recognizer recognizer;
+  STREAM_SOURCE stream_source;
 
   bool canQuit();
   void setFilters();

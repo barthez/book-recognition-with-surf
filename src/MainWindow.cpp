@@ -1,7 +1,8 @@
 #include "MainWindow.h"
 
 MainWindow::MainWindow(void) :
-  start_stop_button("Start")
+  start_stop_button("Start"),
+  stream_source(STREAM_SOURCE::CAMERA)
 {
   set_title("Book reogition");
   set_size_request(800, 600);
@@ -144,6 +145,10 @@ void MainWindow::on_save_database_menu_item_clicked()
 
 void MainWindow::on_clear_database_menu_item_clicked()
 {
+  if (Gtk::MessageDialog(*this, "Do you want to clear current database?", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO).run() == Gtk::RESPONSE_YES)
+  {
+    db.clear();
+  }
 }
 
 void MainWindow::on_source_menu_changed(STREAM_SOURCE source)

@@ -50,6 +50,7 @@ namespace BR {
     Book* find(cv::Mat image, cv::Mat & H);
 
     bool isSaved() const;
+    void clear();
   private:    
     void initialize(bool as);
     bool autosave;

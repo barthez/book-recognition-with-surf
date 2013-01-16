@@ -222,5 +222,12 @@ bool BR::Database::isSaved() const
 }
 
 
-
+void BR::Database::clear()
+{
+  for (Book *b : books)
+  {
+    delete b;
+  }
+  books.clear();
+}
 
