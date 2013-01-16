@@ -35,6 +35,9 @@ private:
   BR::Recognizer recognizer;
 
   bool canQuit();
+  void setFilters();
+
+  Gtk::FileFilter xml_filter, all_filter;
 
   //callbacks
   void on_start_stop_button_clicked();

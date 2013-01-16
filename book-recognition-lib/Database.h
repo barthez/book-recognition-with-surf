@@ -57,6 +57,7 @@ namespace BR {
 
     std::string filename;
     std::vector<Book*> books;
+    
 
     //for recognizing
     static cv::Ptr<cv::DescriptorMatcher> matcher; 

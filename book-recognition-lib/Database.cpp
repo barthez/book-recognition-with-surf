@@ -56,6 +56,8 @@ BR::Database::Database(std::string filename, bool as)
 void BR::Database::load(std::string filename)
 {
   this->filename = filename;
+  size_t dir_pos = filename.find_last_of("\\/");
+  std::string filename_prefix = dir_pos == std::string::npos ? "" : filename.substr(0, dir_pos + 1);
   std::string book_image_filename;
   std::string book_info_filename;
 
@@ -64,7 +66,8 @@ void BR::Database::load(std::string filename)
   {
     throw DatabaseException("unable to load file: " + filename);
   }
-  TiXmlElement * element = document.FirstChildElement("book"); // skip XML declaration
+  //get books
+  TiXmlElement * element = document.FirstChildElement("book");
   do
   {
     Book * book = new Book();
@@ -76,9 +79,9 @@ void BR::Database::load(std::string filename)
     child = child->NextSiblingElement("author");
     book->author = child->GetText();
     child = child->NextSiblingElement("image_filename");
-    book_image_filename = child->GetText();
+    book_image_filename = filename_prefix +  child->GetText();
     child = child->NextSiblingElement("image_info_filename");
-    book_info_filename = child->GetText();
+    book_info_filename = filename_prefix + child->GetText();
 
     //load structures
     cv::FileStorage fs(book_info_filename, cv::FileStorage::READ);
@@ -97,15 +100,18 @@ void BR::Database::save(std::string filename)
 {
   //find 
   size_t dir_pos = filename.find_last_of("\\/");
-  std::string filename_prefix = dir_pos == std::string::npos ? "" : filename.substr(0, filename.find_last_of("\\/") + 1);
+  std::string filename_prefix = dir_pos == std::string::npos ? "" : filename.substr(0, dir_pos + 1);
+  std::string db_name = dir_pos == std::string::npos ? filename : filename.substr(dir_pos + 1, filename.length() - dir_pos - 5);
 
   TiXmlDocument document(filename.c_str());
   document.LinkEndChild(new TiXmlDeclaration("1.0", "", "" ));
-  std::for_each(books.begin(), books.end(), [this, &document, &filename_prefix](Book * book)
+  std::for_each(books.begin(), books.end(), [this, &document, &filename_prefix, &filename, &db_name](Book * book)
   {
     //set image filename
-    std::string book_info_filename = filename_prefix + book->isbn + book->author + book->title + ".xml";
-    std::string book_image_filename = filename_prefix + book->isbn + book->author + book->title + ".jpg";
+    std::string book_info_filename = book->isbn + book->author + book->title + db_name + ".xml";
+    std::string book_image_filename = book->isbn + book->author + book->title + db_name + ".jpg";
+    std::string book_info_filename_store = filename_prefix + book_info_filename;
+    std::string book_image_filename_store = filename_prefix + book_image_filename;
 
     //create XML
     TiXmlElement * book_xml = new TiXmlElement("book");
@@ -128,10 +134,10 @@ void BR::Database::save(std::string filename)
     document.LinkEndChild(book_xml);
 
     //store image
-    cv::imwrite(book_image_filename, book->image);
+    cv::imwrite(book_image_filename_store, book->image);
 
     //store structures
-    cv::FileStorage fs(book_info_filename, cv::FileStorage::WRITE);
+    cv::FileStorage fs(book_info_filename_store, cv::FileStorage::WRITE);
     cv::write(fs, "keypoints", book->keypoints);
     fs << "descriptors" << book->descriptors;
     fs.release();

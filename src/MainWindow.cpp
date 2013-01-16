@@ -7,6 +7,7 @@ MainWindow::MainWindow(void) :
   set_size_request(800, 600);
 
   makeMenu();
+  setFilters();
 
   Gtk::Menu_Helpers::MenuList& list_upd = source_menu.items();
   list_upd.push_back(
@@ -81,7 +82,6 @@ bool MainWindow::on_delete_event(GdkEventAny* event)
 
 bool MainWindow::canQuit()
 {
-  db.addBook(new BR::Book());
   if (!db.isSaved())
   {
     Gtk::MessageDialog dialog(*this, "Do you want to store databese before quit?", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO);
@@ -95,8 +95,8 @@ bool MainWindow::canQuit()
     case Gtk::RESPONSE_CANCEL:
       return true;
     }
-    return false;
   }
+  return false;
 }
 
 void MainWindow::on_start_stop_button_clicked()
@@ -111,6 +111,9 @@ void MainWindow::on_load_database_menu_item_clicked()
   dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
   dialog.add_button("OK", Gtk::RESPONSE_OK);
 
+  dialog.add_filter(xml_filter);
+  dialog.add_filter(all_filter);
+
   if (dialog.run() == Gtk::RESPONSE_OK)
   {
     db.load(dialog.get_filename());
@@ -119,6 +122,24 @@ void MainWindow::on_load_database_menu_item_clicked()
 
 void MainWindow::on_save_database_menu_item_clicked()
 {
+  Gtk::FileChooserDialog dialog("Choose a file", Gtk::FILE_CHOOSER_ACTION_SAVE);
+  dialog.set_transient_for(*this);
+
+  dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  dialog.add_button("OK", Gtk::RESPONSE_OK);
+
+  dialog.add_filter(xml_filter);
+  dialog.add_filter(all_filter);
+
+  if (dialog.run() == Gtk::RESPONSE_OK)
+  {
+    std::string file = dialog.get_filename();
+    if (file.substr(file.length() - 4) != ".xml")
+    {
+      file = file + ".xml";
+    }
+    db.save(file);
+  }
 }
 
 void MainWindow::on_clear_database_menu_item_clicked()
@@ -128,6 +149,16 @@ void MainWindow::on_clear_database_menu_item_clicked()
 void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
 {
 
+}
+
+void MainWindow::setFilters()
+{
+  xml_filter.set_name("XML files");
+  xml_filter.add_mime_type("text/xml");
+  xml_filter.add_mime_type("application/xml");
+  
+  all_filter.set_name("Any files");
+  all_filter.add_pattern("*");
 }
 
 /*
