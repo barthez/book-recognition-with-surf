@@ -81,14 +81,22 @@ bool MainWindow::on_delete_event(GdkEventAny* event)
 
 bool MainWindow::canQuit()
 {
-  bool tmp;
-  //if (tmp = db.saved())
+  db.addBook(new BR::Book());
+  if (!db.isSaved())
   {
-    Gtk::MessageDialog("Do you want to store databese before quit?").run();
-    
+    Gtk::MessageDialog dialog(*this, "Do you want to store databese before quit?", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO);
+    dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+
+    switch (dialog.run())
+    {
+    case Gtk::RESPONSE_YES:
+      on_save_database_menu_item_clicked();
+      break;
+    case Gtk::RESPONSE_CANCEL:
+      return true;
+    }
+    return false;
   }
-  return false;
-  return tmp;
 }
 
 void MainWindow::on_start_stop_button_clicked()
@@ -97,6 +105,16 @@ void MainWindow::on_start_stop_button_clicked()
 
 void MainWindow::on_load_database_menu_item_clicked()
 {
+  Gtk::FileChooserDialog dialog("Choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
+  dialog.set_transient_for(*this);
+
+  dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  dialog.add_button("OK", Gtk::RESPONSE_OK);
+
+  if (dialog.run() == Gtk::RESPONSE_OK)
+  {
+    db.load(dialog.get_filename());
+  }
 }
 
 void MainWindow::on_save_database_menu_item_clicked()

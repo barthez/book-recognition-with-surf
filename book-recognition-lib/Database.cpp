@@ -38,6 +38,7 @@ cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::cr
 void BR::Database::initialize(bool as)
 {
   autosave = as;
+  saved = true;
 }
 
 
@@ -136,6 +137,7 @@ void BR::Database::save(std::string filename)
     fs.release();
   });
   document.SaveFile();
+  saved = true;
 }
 
 BR::Book * BR::Database::find(cv::Mat image, cv::Mat& H)
@@ -205,9 +207,13 @@ BR::Database::~Database()
 void BR::Database::addBook(Book * book)
 {
   books.push_back(book);
+  saved = false;
 }
 
-
+bool BR::Database::isSaved() const
+{
+  return saved;
+}
 
 
 

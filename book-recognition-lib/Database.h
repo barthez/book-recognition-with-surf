@@ -48,9 +48,13 @@ namespace BR {
     void addBook(Book * book);
     
     Book* find(cv::Mat image, cv::Mat & H);
+
+    bool isSaved() const;
   private:    
     void initialize(bool as);
     bool autosave;
+    bool saved;
+
     std::string filename;
     std::vector<Book*> books;
 
