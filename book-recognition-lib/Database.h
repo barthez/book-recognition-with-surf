@@ -50,9 +50,9 @@ namespace BR {
     Book* find(cv::Mat image, cv::Mat & H);
   private:    
     void initialize(bool as);
-    std::vector<Book*> books;
     bool autosave;
     std::string filename;
+    std::vector<Book*> books;
 
     //for recognizing
     static cv::Ptr<cv::DescriptorMatcher> matcher; 
