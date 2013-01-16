@@ -110,6 +110,28 @@ void BR::Recognizer::showCurrentFrame(bool show_book)
   cv::imshow(windowID(), output_frame);
 }
 
+cv::Mat BR::Recognizer::getCurrentFrame(bool show_book)
+{
+  last_frame = getCurrentFrame().clone();
+  if (show_book && current_book) {
+    cv::putText(last_frame, current_book->toString(),cv::Point(20,20),cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,0));
+    
+    std::vector< cv::Point2f > object_corners(4);
+    std::vector< cv::Point2f > scene_corners(4);
+    object_corners[0] = cv::Point(0, 0);
+    object_corners[1] = cv::Point(current_book->image.cols, 0);
+    object_corners[2] = cv::Point(current_book->image.cols, current_book->image.rows);
+    object_corners[3] = cv::Point(0, current_book->image.rows);
+    
+    cv::perspectiveTransform( object_corners, scene_corners, homography);
+    for(int i=0; i<4; ++i) {
+      //std::cout << "Point(" << scene_corners[i].x << ", " << scene_corners[i].y << ")\n";
+      cv::line(last_frame, scene_corners[i], scene_corners[ (i+1) %4], cv::Scalar(0, 255, 0), 4);
+    }
+  }
+  return last_frame;
+}
+
 bool BR::Recognizer::next(bool find)
 {
   if (! source.isOpened() ) throw new RecognizerException("Select source before running");

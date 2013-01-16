@@ -1,9 +1,13 @@
+#include <iostream>
+
 #include "MainWindow.h"
 
 MainWindow::MainWindow(void) :
   start_stop_button("Start"),
   stream_source(STREAM_SOURCE::CAMERA),
-  source_label("Source:")
+  source_label("Source:"),
+  run(false),
+  showing_image_thread(nullptr)
 {
   set_title("Book reogition");
   set_size_request(800, 600);
@@ -11,18 +15,36 @@ MainWindow::MainWindow(void) :
   makeMenu();
   setFilters();
 
+  dispatcher.connect([&]()
+  {
+  try
+  {
+    showing_image_mutex.lock();
+    image_place.set(Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step));
+    image_place.queue_draw();
+    showing_image_mutex.unlock();
+  }
+  catch (...)
+  {
+    std::cout << "EXCEPTIOn2\n";
+  }
+  });
+
   Gtk::Menu_Helpers::MenuList& list_upd = source_menu.items();
-  list_upd.push_back(
-    Gtk::Menu_Helpers::MenuElem("From file", sigc::bind(sigc::mem_fun(*this,
-    &MainWindow::on_source_menu_changed), STREAM_SOURCE::FILE)));
   list_upd.push_back(
     Gtk::Menu_Helpers::MenuElem("From camera", sigc::bind(sigc::mem_fun(*this,
     &MainWindow::on_source_menu_changed), STREAM_SOURCE::CAMERA)));
+  list_upd.push_back(
+    Gtk::Menu_Helpers::MenuElem("From file", sigc::bind(sigc::mem_fun(*this,
+    &MainWindow::on_source_menu_changed), STREAM_SOURCE::FILE)));
 
   option_menu.set_menu(source_menu);
+
+  start_stop_button.set_sensitive(false);
     
   add(main_box);
   main_box.pack_start(*(m_refUIManager->get_widget("/MenuBar")), Gtk::PACK_SHRINK);
+  main_box.pack_start(image_place);
   main_box.pack_end(buttons_box, Gtk::PACK_SHRINK);
 
   buttons_box.pack_end(start_stop_button);
@@ -105,6 +127,22 @@ bool MainWindow::canQuit()
 
 void MainWindow::on_start_stop_button_clicked()
 {
+  if (run)
+  {
+    run = false;
+    showing_image_thread->join();
+    delete showing_image_thread;
+    showing_image_thread = nullptr;
+    start_stop_button.set_label("Start");
+    option_menu.set_sensitive(true);
+  }
+  else
+  {
+    run = true;
+    showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
+    start_stop_button.set_label("Stop");
+    option_menu.set_sensitive(false);
+  }
 }
 
 void MainWindow::on_load_database_menu_item_clicked()
@@ -156,6 +194,7 @@ void MainWindow::on_clear_database_menu_item_clicked()
 
 void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
 {
+  start_stop_button.set_sensitive(true);
   switch (source)
   {
   case STREAM_SOURCE::CAMERA:
@@ -164,7 +203,6 @@ void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
   case STREAM_SOURCE::FILE:
     Gtk::FileChooserDialog dialog("Choose a video file", Gtk::FILE_CHOOSER_ACTION_SAVE);
     dialog.set_transient_for(*this);
-
     dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     dialog.add_button("OK", Gtk::RESPONSE_OK);
     dialog.add_filter(video_filter);
@@ -196,9 +234,23 @@ void MainWindow::setFilters()
   video_filter.add_mime_type("video/x-flv");
 }
 
-/*
-
-  db.load("db/db.xml");
-  image_place.set(Gdk::Pixbuf::create_from_data(db.books.front()->getImage().data, Gdk::COLORSPACE_RGB, false, 8, db.books.front()->getImage().cols, db.books.front()->getImage().rows, db.books.front()->getImage().step));
-  image_place.queue_draw();
-  */
+void MainWindow::showing_frames()
+{
+  try
+  {
+  while (run)
+  {
+    showing_image_mutex.lock();
+    recognizer.next();
+    image = recognizer.getCurrentFrame(false);
+    image_place.set(Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step));
+    image_place.queue_draw();
+    showing_image_mutex.unlock();
+//    dispatcher.emit();
+  }
+  }
+  catch (...)
+  {
+    std::cout << "EXCEPTIOn\n";
+  }
+}

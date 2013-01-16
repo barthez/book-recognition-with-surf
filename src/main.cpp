@@ -9,14 +9,22 @@ using namespace BR;
 
 int main(int argc, char **argv)
 {
+#if 1
+  try
+  {
   Gtk::Main brws(argc, argv);
 
   MainWindow win;
 
   Gtk::Main::run(win);
+  }
+  catch (...)
+  {
+    std::cout << "EXCEPTIOn\n";
+  }
 
   return 0;
-  Database db;
+
   /*
   std::cout << "Loading books ... ";
   Book book1("ISBN", "Kot w stanie czystym", "Terry Prachet", "data/pratchett.jpg");
@@ -35,15 +43,18 @@ int main(int argc, char **argv)
   db.save("db/db.xml");
   return 0;
   //*/
+#endif
 #if 0
+  Database db;
   db.load("db/db.xml");
 
   std::cout << "Controls\n\tq - quit\n\tf - find matching book\n\th - hold current frame\n\tu - unhold\n";
   
   try
   {
-    Recognizer r("data/MOV03427.MPG");
-    r.setDatabase(db);
+    Recognizer r(0);
+    //Recognizer r("data/MOV03427.MPG");
+    r.setDatabase(&db);
     char ch;
     bool and_find = false;
     while(r.next(and_find)) {

@@ -3,6 +3,11 @@
 #include <Recognizer.h>
 
 #include <gtkmm-2.4\gtkmm.h>
+#include <opencv2\core\core.hpp>
+
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 enum class STREAM_SOURCE
 {
@@ -17,6 +22,9 @@ public:
   ~MainWindow(void);
 private:
   void makeMenu();
+
+  Glib::Dispatcher dispatcher;
+  cv::Mat image;
 
   Gtk::Button start_stop_button;
   Gtk::Image image_place;
@@ -36,6 +44,10 @@ private:
   BR::Recognizer recognizer;
   STREAM_SOURCE stream_source;
 
+  std::atomic<bool> run;
+  std::thread * showing_image_thread;
+  std::mutex showing_image_mutex;
+
   bool canQuit();
   void setFilters();
 
@@ -50,6 +62,8 @@ private:
   void on_source_menu_changed(STREAM_SOURCE);
 
   bool on_delete_event(GdkEventAny * event) override;
+
+  void showing_frames();
 
 
 };

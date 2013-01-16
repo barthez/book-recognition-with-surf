@@ -51,6 +51,7 @@ namespace BR {
     
     const cv::Mat & getCurrentFrame() const;
     void showCurrentFrame(bool show_book = true);
+    cv::Mat getCurrentFrame(bool show_book);
     Book & getCurrentBook();
     bool next(bool find = false);
     bool hold(bool h = true);
@@ -65,7 +66,7 @@ namespace BR {
     bool hold_flag;
     
     cv::VideoCapture source;
-    cv::Mat current_frame;
+    cv::Mat current_frame, last_frame;
     Database *db;
     Book * current_book;
     
