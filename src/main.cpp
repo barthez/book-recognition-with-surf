@@ -35,6 +35,7 @@ int main(int argc, char **argv)
   db.save("db/db.xml");
   return 0;
   //*/
+#if 0
   db.load("db/db.xml");
 
   std::cout << "Controls\n\tq - quit\n\tf - find matching book\n\th - hold current frame\n\tu - unhold\n";
@@ -60,4 +61,5 @@ int main(int argc, char **argv)
     std::cout << "ERROR: " << e.getFullMessage() << "\n";
   }
   return 0;
+#endif
 }

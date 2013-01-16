@@ -72,7 +72,7 @@ bool BR::Recognizer::open(std::string movie_filename)
   return source.open(movie_filename);
 }
 
-void BR::Recognizer::setDatabase(const BR::Database & db)
+void BR::Recognizer::setDatabase(BR::Database * db)
 {
   this->db = db;
 }
@@ -119,7 +119,7 @@ bool BR::Recognizer::next(bool find)
       cv::Mat tmp_img;
       cv::cvtColor(current_frame, tmp_img, cv::COLOR_BGR2GRAY);
       if (find) {
-        current_book = db.find(tmp_img, homography);
+        current_book = db->find(tmp_img, homography);
         
         hold();
       }

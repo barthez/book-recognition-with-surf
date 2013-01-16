@@ -47,7 +47,7 @@ namespace BR {
     bool open(int camID);
     bool open(std::string movie_filename);
     
-    void setDatabase(const Database & db);
+    void setDatabase(Database * db);
     
     const cv::Mat & getCurrentFrame() const;
     void showCurrentFrame(bool show_book = true);
@@ -66,7 +66,7 @@ namespace BR {
     
     cv::VideoCapture source;
     cv::Mat current_frame;
-    Database db;
+    Database *db;
     Book * current_book;
     
     cv::Mat homography;

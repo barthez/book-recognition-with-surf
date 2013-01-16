@@ -22,6 +22,7 @@ private:
   Gtk::Image image_place;
   Gtk::Menu source_menu;
   Gtk::OptionMenu option_menu;
+  Gtk::Label source_label;
 
   Gtk::VBox main_box;
   Gtk::HBox buttons_box;
@@ -38,7 +39,7 @@ private:
   bool canQuit();
   void setFilters();
 
-  Gtk::FileFilter xml_filter, all_filter;
+  Gtk::FileFilter xml_filter, all_filter, video_filter;
 
   //callbacks
   void on_start_stop_button_clicked();

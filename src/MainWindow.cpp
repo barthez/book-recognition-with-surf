@@ -2,7 +2,8 @@
 
 MainWindow::MainWindow(void) :
   start_stop_button("Start"),
-  stream_source(STREAM_SOURCE::CAMERA)
+  stream_source(STREAM_SOURCE::CAMERA),
+  source_label("Source:")
 {
   set_title("Book reogition");
   set_size_request(800, 600);
@@ -22,10 +23,11 @@ MainWindow::MainWindow(void) :
     
   add(main_box);
   main_box.pack_start(*(m_refUIManager->get_widget("/MenuBar")), Gtk::PACK_SHRINK);
-  main_box.pack_end(buttons_box);
+  main_box.pack_end(buttons_box, Gtk::PACK_SHRINK);
 
   buttons_box.pack_end(start_stop_button);
-  buttons_box.pack_start(option_menu);
+  buttons_box.pack_start(source_label, Gtk::PACK_SHRINK);
+  buttons_box.pack_start(option_menu, Gtk::PACK_SHRINK);
 
   start_stop_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_start_stop_button_clicked));
  
@@ -34,6 +36,7 @@ MainWindow::MainWindow(void) :
   main_box.show_all_children(true);
 
   //control
+  recognizer.setDatabase(&db);
 }
 
 
@@ -153,7 +156,25 @@ void MainWindow::on_clear_database_menu_item_clicked()
 
 void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
 {
+  switch (source)
+  {
+  case STREAM_SOURCE::CAMERA:
+    recognizer.open(0);
+    break;
+  case STREAM_SOURCE::FILE:
+    Gtk::FileChooserDialog dialog("Choose a video file", Gtk::FILE_CHOOSER_ACTION_SAVE);
+    dialog.set_transient_for(*this);
 
+    dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    dialog.add_button("OK", Gtk::RESPONSE_OK);
+    dialog.add_filter(video_filter);
+    dialog.add_filter(all_filter);
+    if (dialog.run() == Gtk::RESPONSE_OK)
+    {
+      recognizer.open(dialog.get_filename());
+    }
+    break;  
+  }
 }
 
 void MainWindow::setFilters()
@@ -164,6 +185,15 @@ void MainWindow::setFilters()
   
   all_filter.set_name("Any files");
   all_filter.add_pattern("*");
+
+  video_filter.set_name("Video files");
+  video_filter.add_mime_type("video/mpeg");
+  video_filter.add_mime_type("video/mp4");
+  video_filter.add_mime_type("video/quicktime");
+  video_filter.add_mime_type("video/x-ms-wmv");
+  video_filter.add_mime_type("video/ogg");
+  video_filter.add_mime_type("video/webm");
+  video_filter.add_mime_type("video/x-flv");
 }
 
 /*
