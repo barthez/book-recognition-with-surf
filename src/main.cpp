@@ -5,6 +5,8 @@
 #include <Recognizer.h>
 #include <Exceptions.h>
 
+#include <glibmm\thread.h>
+
 using namespace BR;
 
 int main(int argc, char **argv)
@@ -12,6 +14,8 @@ int main(int argc, char **argv)
 #if 1
   try
   {
+    
+    Glib::thread_init();
   Gtk::Main brws(argc, argv);
 
   MainWindow win;

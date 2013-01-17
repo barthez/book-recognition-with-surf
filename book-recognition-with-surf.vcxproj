@@ -56,7 +56,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>tinyxml.lib;Vfw32.lib;book-recognition-lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <Version>0.0.5</Version>
+      <Version>
+      </Version>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
