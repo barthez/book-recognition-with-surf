@@ -28,6 +28,7 @@ private:
   Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 
   Gtk::Button start_stop_button;
+  Gtk::Button  find_button;
   Gtk::Image image_place;
   Gtk::Menu source_menu;
   Gtk::OptionMenu option_menu;
@@ -45,9 +46,10 @@ private:
   BR::Recognizer recognizer;
   STREAM_SOURCE stream_source;
 
+  std::atomic<bool> find;
   std::atomic<bool> run;
-  Glib::Thread * showing_image_thread;
-  //std::thread * showing_image_thread;
+  //Glib::Thread * showing_image_thread;
+  std::thread * showing_image_thread;
   std::mutex showing_image_mutex;
 
   bool canQuit();
@@ -62,10 +64,13 @@ private:
   void on_save_database_menu_item_clicked();
   void on_clear_database_menu_item_clicked();
   void on_source_menu_changed(STREAM_SOURCE);
+  void on_find_button_clicked();
 
   bool on_delete_event(GdkEventAny * event) override;
 
   void showing_frames();
+
+  void getFrame();
 
 
 };

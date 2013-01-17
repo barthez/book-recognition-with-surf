@@ -14,8 +14,8 @@ int main(int argc, char **argv)
 #if 1
   try
   {
-    
   Glib::thread_init();
+    gdk_threads_init();
   
   Gtk::Main brws(argc, argv);
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
   {
     std::cout << "EXCEPTIOn\n";
   }
-
+  gdk_threads_leave();
   return 0;
 
   /*

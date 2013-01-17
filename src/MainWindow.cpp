@@ -4,9 +4,11 @@
 
 MainWindow::MainWindow(void) :
   start_stop_button("Start"),
+  find_button("Find book"),
   stream_source(STREAM_SOURCE::CAMERA),
   source_label("Source:"),
   run(false),
+  find(false),
   showing_image_thread(nullptr)
 {
   set_title("Book reogition");
@@ -23,6 +25,14 @@ MainWindow::MainWindow(void) :
     Gtk::Menu_Helpers::MenuElem("From file", sigc::bind(sigc::mem_fun(*this,
     &MainWindow::on_source_menu_changed), STREAM_SOURCE::FILE)));
 
+  dispatcher.connect([&]()
+  {
+    showing_image_mutex.lock();
+    pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
+    image_place.set(pixbuf);
+    showing_image_mutex.unlock();
+  });
+
   option_menu.set_menu(source_menu);
 
   start_stop_button.set_sensitive(false);
@@ -35,8 +45,10 @@ MainWindow::MainWindow(void) :
   buttons_box.pack_end(start_stop_button);
   buttons_box.pack_start(source_label, Gtk::PACK_SHRINK);
   buttons_box.pack_start(option_menu, Gtk::PACK_SHRINK);
+  buttons_box.pack_start(find_button, Gtk::PACK_SHRINK);
 
   start_stop_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_start_stop_button_clicked));
+  find_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_find_button_clicked));
  
   //showing
   main_box.show();
@@ -115,9 +127,9 @@ void MainWindow::on_start_stop_button_clicked()
 {
   if (run)
   {
-    run = false;
+    find = run = false;
     showing_image_thread->join();
-    //delete showing_image_thread;
+    delete showing_image_thread;
     showing_image_thread = nullptr;
     start_stop_button.set_label("Start");
     option_menu.set_sensitive(true);
@@ -125,8 +137,8 @@ void MainWindow::on_start_stop_button_clicked()
   else
   {
     run = true;
-    showing_image_thread = Glib::Thread::create(sigc::mem_fun(*this, &MainWindow::showing_frames), true);
-    //showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
+    //showing_image_thread = Glib::Thread::create(sigc::mem_fun(*this, &MainWindow::showing_frames), true);
+    showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
     start_stop_button.set_label("Stop");
     option_menu.set_sensitive(false);
   }
@@ -228,16 +240,38 @@ void MainWindow::showing_frames()
   {
   while (run)
   {
-    recognizer.next();
-    tmp = recognizer.getCurrentFrame(false);
+    gdk_threads_enter();
+    //showing_image_mutex.lock();
+    recognizer.next(false);
+    tmp = recognizer.getCurrentFrame(true);
     image = tmp.clone();
     pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
     image_place.set(pixbuf);
     image_place.queue_draw();
+    //showing_image_mutex.unlock();
+    //dispatcher.emit();
+    //std::this_thread::yield();
+    image_place.set(pixbuf);
+    image_place.queue_draw();
+    gdk_threads_leave();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   }
   catch (...)
   {
+    gdk_threads_leave();
     std::cout << "EXCEPTIOn\n";
   }
+}
+
+void MainWindow::on_find_button_clicked()
+{
+  on_start_stop_button_clicked();
+  recognizer.next(true);
+  cv::Mat tmp = recognizer.getCurrentFrame(true);
+  image = tmp.clone();
+  pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
+  image_place.set(pixbuf);
+  image_place.queue_draw();
+  recognizer.hold(false);
 }
