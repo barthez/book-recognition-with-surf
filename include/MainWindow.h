@@ -27,8 +27,11 @@ private:
   cv::Mat image;
   Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 
+  Gtk::EventBox image_event_box;
+
   Gtk::Button start_stop_button;
-  Gtk::Button  find_button;
+  Gtk::Button find_button;
+  Gtk::Button add_book_button;
   Gtk::Image image_place;
   Gtk::Menu source_menu;
   Gtk::OptionMenu option_menu;
@@ -65,12 +68,14 @@ private:
   void on_clear_database_menu_item_clicked();
   void on_source_menu_changed(STREAM_SOURCE);
   void on_find_button_clicked();
+  void on_add_book_button_clicked();
+  bool on_on_image_place_clicked(GdkEventButton * button);
 
   bool on_delete_event(GdkEventAny * event) override;
 
   void showing_frames();
 
-  void getFrame();
+  void getFrame(bool find_book);
 
 
 };

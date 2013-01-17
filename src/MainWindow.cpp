@@ -1,10 +1,13 @@
 #include <iostream>
 
+#include <opencv2\imgproc\imgproc.hpp>
+
 #include "MainWindow.h"
 
 MainWindow::MainWindow(void) :
   start_stop_button("Start"),
   find_button("Find book"),
+  add_book_button("Add book"),
   stream_source(STREAM_SOURCE::CAMERA),
   source_label("Source:"),
   run(false),
@@ -36,19 +39,26 @@ MainWindow::MainWindow(void) :
   option_menu.set_menu(source_menu);
 
   start_stop_button.set_sensitive(false);
+  add_book_button.set_sensitive(false);
     
   add(main_box);
   main_box.pack_start(*(m_refUIManager->get_widget("/MenuBar")), Gtk::PACK_SHRINK);
-  main_box.pack_start(image_place);
+  main_box.pack_start(image_event_box);
   main_box.pack_end(buttons_box, Gtk::PACK_SHRINK);
+
+  image_event_box.add(image_place);
 
   buttons_box.pack_end(start_stop_button);
   buttons_box.pack_start(source_label, Gtk::PACK_SHRINK);
   buttons_box.pack_start(option_menu, Gtk::PACK_SHRINK);
   buttons_box.pack_start(find_button, Gtk::PACK_SHRINK);
+  buttons_box.pack_start(add_book_button, Gtk::PACK_SHRINK);
 
   start_stop_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_start_stop_button_clicked));
   find_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_find_button_clicked));
+  add_book_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_add_book_button_clicked));
+  image_event_box.signal_button_press_event().connect(sigc::mem_fun(*this, &MainWindow::on_on_image_place_clicked));
+
  
   //showing
   main_box.show();
@@ -105,7 +115,11 @@ bool MainWindow::on_delete_event(GdkEventAny* event)
 
 bool MainWindow::canQuit()
 {
-  on_start_stop_button_clicked();
+  if (run)
+  {
+    Gtk::MessageDialog("You cannot quit during run").run();
+    return true;
+  }
   if (!db.isSaved())
   {
     Gtk::MessageDialog dialog(*this, "Do you want to store databese before quit?", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO);
@@ -133,6 +147,7 @@ void MainWindow::on_start_stop_button_clicked()
     showing_image_thread = nullptr;
     start_stop_button.set_label("Start");
     option_menu.set_sensitive(true);
+    add_book_button.set_sensitive(false);
   }
   else
   {
@@ -141,11 +156,17 @@ void MainWindow::on_start_stop_button_clicked()
     showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
     start_stop_button.set_label("Stop");
     option_menu.set_sensitive(false);
+    add_book_button.set_sensitive(true);
   }
 }
 
 void MainWindow::on_load_database_menu_item_clicked()
 {
+  if (run) //running
+  {
+    Gtk::MessageDialog("You can't load database while running").run();
+    return;
+  }
   Gtk::FileChooserDialog dialog("Choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
   dialog.set_transient_for(*this);
 
@@ -235,24 +256,13 @@ void MainWindow::setFilters()
 
 void MainWindow::showing_frames()
 {
-    cv::Mat tmp;
+  cv::Mat tmp;
   try
   {
   while (run)
   {
     gdk_threads_enter();
-    //showing_image_mutex.lock();
-    recognizer.next(false);
-    tmp = recognizer.getCurrentFrame(true);
-    image = tmp.clone();
-    pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
-    image_place.set(pixbuf);
-    image_place.queue_draw();
-    //showing_image_mutex.unlock();
-    //dispatcher.emit();
-    //std::this_thread::yield();
-    image_place.set(pixbuf);
-    image_place.queue_draw();
+    getFrame(false);
     gdk_threads_leave();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -260,18 +270,39 @@ void MainWindow::showing_frames()
   catch (...)
   {
     gdk_threads_leave();
-    std::cout << "EXCEPTIOn\n";
   }
+}
+
+bool MainWindow::on_on_image_place_clicked(GdkEventButton * button)
+{
+  std::cout << "SAD: " << button->x << button->y << "\n";
+  return true;
+}
+
+void MainWindow::on_add_book_button_clicked()
+{
+
 }
 
 void MainWindow::on_find_button_clicked()
 {
   on_start_stop_button_clicked();
-  recognizer.next(true);
+  getFrame(true);
+  recognizer.hold(false);
+}
+
+void MainWindow::getFrame(bool find_book)
+{
+  recognizer.next(find_book);
   cv::Mat tmp = recognizer.getCurrentFrame(true);
-  image = tmp.clone();
+  cv::Mat tmp2;
+  cv::cvtColor(tmp, tmp2, CV_BGR2RGB);
+  cv::resize(tmp2, image, cv::Size(image_event_box.get_width(), image_event_box.get_height()));
   pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
   image_place.set(pixbuf);
   image_place.queue_draw();
-  recognizer.hold(false);
+  //showing_image_mutex.unlock();
+  //dispatcher.emit();
+  //std::this_thread::yield();
 }
+
