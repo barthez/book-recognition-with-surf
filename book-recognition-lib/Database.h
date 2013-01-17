@@ -51,6 +51,7 @@ namespace BR {
 
     bool isSaved() const;
     void clear();
+    void fixAndAdd(cv::Mat & image, cv::vector<cv::Point2f>, std::string title, std::string author, std::string isbn);
   private:    
     void initialize(bool as);
     bool autosave;
@@ -58,6 +59,7 @@ namespace BR {
 
     std::string filename;
     std::vector<Book*> books;
+
     
 
     //for recognizing

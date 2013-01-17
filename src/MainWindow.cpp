@@ -1,8 +1,10 @@
 #include <iostream>
+#include <vector>
 
 #include <opencv2\imgproc\imgproc.hpp>
 
 #include "MainWindow.h"
+#include "BookDataDialog.h"
 
 MainWindow::MainWindow(void) :
   start_stop_button("Start"),
@@ -139,7 +141,7 @@ bool MainWindow::canQuit()
 
 void MainWindow::on_start_stop_button_clicked()
 {
-  if (run)
+  if (run) //stopping
   {
     find = run = false;
     showing_image_thread->join();
@@ -147,16 +149,16 @@ void MainWindow::on_start_stop_button_clicked()
     showing_image_thread = nullptr;
     start_stop_button.set_label("Start");
     option_menu.set_sensitive(true);
-    add_book_button.set_sensitive(false);
+    add_book_button.set_sensitive(true);
   }
-  else
+  else //starting
   {
     run = true;
     //showing_image_thread = Glib::Thread::create(sigc::mem_fun(*this, &MainWindow::showing_frames), true);
     showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
     start_stop_button.set_label("Stop");
     option_menu.set_sensitive(false);
-    add_book_button.set_sensitive(true);
+    add_book_button.set_sensitive(false);
   }
 }
 
@@ -215,6 +217,7 @@ void MainWindow::on_clear_database_menu_item_clicked()
 void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
 {
   start_stop_button.set_sensitive(true);
+  add_book_button.set_sensitive(false);
   switch (source)
   {
   case STREAM_SOURCE::CAMERA:
@@ -275,13 +278,31 @@ void MainWindow::showing_frames()
 
 bool MainWindow::on_on_image_place_clicked(GdkEventButton * button)
 {
-  std::cout << "SAD: " << button->x << button->y << "\n";
+  if (!read_image)
+  {
+    return true;
+  }
+  static int count = 0;
+  static std::vector<cv::Point2f> points(4);
+  points[count] = cv::Point2f(button->x, button->y);
+  if (++count == 4)
+  {
+    count = 0;
+    read_image = false;
+    BookDataDialog bdd;
+    if (bdd.run() == Gtk::RESPONSE_OK)
+    {
+      db.fixAndAdd(image, points, bdd.getTitle(), bdd.getAuthor(), bdd.getISBN());
+      Gtk::MessageDialog("Book was added to database").run();
+    }
+  }
+  
   return true;
 }
 
 void MainWindow::on_add_book_button_clicked()
 {
-
+  read_image = true;
 }
 
 void MainWindow::on_find_button_clicked()

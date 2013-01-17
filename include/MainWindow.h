@@ -55,6 +55,8 @@ private:
   std::thread * showing_image_thread;
   std::mutex showing_image_mutex;
 
+  bool read_image;
+
   bool canQuit();
   void setFilters();
 

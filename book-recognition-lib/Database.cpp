@@ -231,3 +231,7 @@ void BR::Database::clear()
   books.clear();
 }
 
+void BR::Database::fixAndAdd(cv::Mat & image, cv::vector<cv::Point2f>, std::string title, std::string author, std::string isbn)
+{
+}
+
