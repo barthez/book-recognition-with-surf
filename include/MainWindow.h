@@ -25,6 +25,7 @@ private:
 
   Glib::Dispatcher dispatcher;
   cv::Mat image;
+  Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 
   Gtk::Button start_stop_button;
   Gtk::Image image_place;
@@ -45,7 +46,8 @@ private:
   STREAM_SOURCE stream_source;
 
   std::atomic<bool> run;
-  std::thread * showing_image_thread;
+  Glib::Thread * showing_image_thread;
+  //std::thread * showing_image_thread;
   std::mutex showing_image_mutex;
 
   bool canQuit();

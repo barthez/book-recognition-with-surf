@@ -15,7 +15,8 @@ int main(int argc, char **argv)
   try
   {
     
-    Glib::thread_init();
+  Glib::thread_init();
+  
   Gtk::Main brws(argc, argv);
 
   MainWindow win;

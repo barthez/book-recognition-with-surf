@@ -15,21 +15,6 @@ MainWindow::MainWindow(void) :
   makeMenu();
   setFilters();
 
-  dispatcher.connect([&]()
-  {
-  try
-  {
-    showing_image_mutex.lock();
-    image_place.set(Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step));
-    image_place.queue_draw();
-    showing_image_mutex.unlock();
-  }
-  catch (...)
-  {
-    std::cout << "EXCEPTIOn2\n";
-  }
-  });
-
   Gtk::Menu_Helpers::MenuList& list_upd = source_menu.items();
   list_upd.push_back(
     Gtk::Menu_Helpers::MenuElem("From camera", sigc::bind(sigc::mem_fun(*this,
@@ -108,6 +93,7 @@ bool MainWindow::on_delete_event(GdkEventAny* event)
 
 bool MainWindow::canQuit()
 {
+  on_start_stop_button_clicked();
   if (!db.isSaved())
   {
     Gtk::MessageDialog dialog(*this, "Do you want to store databese before quit?", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO);
@@ -131,7 +117,7 @@ void MainWindow::on_start_stop_button_clicked()
   {
     run = false;
     showing_image_thread->join();
-    delete showing_image_thread;
+    //delete showing_image_thread;
     showing_image_thread = nullptr;
     start_stop_button.set_label("Start");
     option_menu.set_sensitive(true);
@@ -139,7 +125,8 @@ void MainWindow::on_start_stop_button_clicked()
   else
   {
     run = true;
-    showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
+    showing_image_thread = Glib::Thread::create(sigc::mem_fun(*this, &MainWindow::showing_frames), true);
+    //showing_image_thread = new std::thread(&MainWindow::showing_frames, this);
     start_stop_button.set_label("Stop");
     option_menu.set_sensitive(false);
   }
@@ -236,17 +223,17 @@ void MainWindow::setFilters()
 
 void MainWindow::showing_frames()
 {
+    cv::Mat tmp;
   try
   {
   while (run)
   {
-    showing_image_mutex.lock();
     recognizer.next();
-    image = recognizer.getCurrentFrame(false);
-    image_place.set(Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step));
+    tmp = recognizer.getCurrentFrame(false);
+    image = tmp.clone();
+    pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
+    image_place.set(pixbuf);
     image_place.queue_draw();
-    showing_image_mutex.unlock();
-//    dispatcher.emit();
   }
   }
   catch (...)
