@@ -143,6 +143,7 @@ bool MainWindow::canQuit()
 
 void MainWindow::on_start_stop_button_clicked()
 {
+  find_button.set_sensitive(true);
   if (run) //stopping
   {
     find = run = false;
