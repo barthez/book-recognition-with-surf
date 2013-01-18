@@ -31,7 +31,10 @@
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <tinyxml.h>
+
+#define ASSERT_NOTNULL(A, B) if (A == NULL) throw new DatabaseException(B)
 
 cv::Ptr<cv::DescriptorMatcher> BR::Database::matcher = cv::DescriptorMatcher::create("FlannBased");
 
@@ -67,21 +70,29 @@ void BR::Database::load(std::string filename)
     throw DatabaseException("unable to load file: " + filename);
   }
   //get books
-  TiXmlElement * element = document.FirstChildElement("book");
+  TiXmlElement * element = document.RootElement()->FirstChildElement("book");
   do
   {
     Book * book = new Book();
     //read XML
     TiXmlElement * child = element->FirstChildElement("isbn");
+    ASSERT_NOTNULL(child, "Unknown file stucture. No ISBN Element.");
     book->isbn = child->GetText();
+    
     child = child->NextSiblingElement("title");
+    ASSERT_NOTNULL(child, "Unknown file stucture. No title element.");
     book->title = child->GetText();
+    
     child = child->NextSiblingElement("author");
+    ASSERT_NOTNULL(child, "Unknown file stucture. No author element.");
     book->author = child->GetText();
+    
     child = child->NextSiblingElement("image_filename");
+    ASSERT_NOTNULL(child, "Unknown file stucture. No image filename.");
     book_image_filename = filename_prefix +  child->GetText();
+    
     child = child->NextSiblingElement("image_info_filename");
-    if ( child == NULL ) throw new DatabaseException("Unknown file stucture");
+    ASSERT_NOTNULL(child, "Unknown file stucture. No image info filename.");
     book_info_filename = filename_prefix + child->GetText();
 
     //load structures
@@ -94,7 +105,7 @@ void BR::Database::load(std::string filename)
     book->image = cv::imread(book_image_filename);
     
     books.push_back(book);
-  } while(element = element->NextSiblingElement("book"));
+  } while( (element = element->NextSiblingElement("book")) != NULL);
 }
 
 void BR::Database::save(std::string filename)
@@ -104,9 +115,13 @@ void BR::Database::save(std::string filename)
   std::string filename_prefix = dir_pos == std::string::npos ? "" : filename.substr(0, dir_pos + 1);
   std::string db_name = dir_pos == std::string::npos ? filename : filename.substr(dir_pos + 1, filename.length() - dir_pos - 5);
 
+  std::cout << "prefix: " << filename_prefix << "; db_name: " << db_name << "\n";
+  
   TiXmlDocument document(filename.c_str());
+  
   document.LinkEndChild(new TiXmlDeclaration("1.0", "", "" ));
-  std::for_each(books.begin(), books.end(), [this, &document, &filename_prefix, &filename, &db_name](Book * book)
+  TiXmlElement * root = new TiXmlElement("books");
+  std::for_each(books.begin(), books.end(), [this, &root, &filename_prefix, &filename, &db_name](Book * book)
   {
     //set image filename
     std::string book_info_filename = book->isbn + book->author + book->title + db_name + ".xml";
@@ -132,7 +147,7 @@ void BR::Database::save(std::string filename)
     book_xml->LinkEndChild(author);
     book_xml->LinkEndChild(image_filename);
     book_xml->LinkEndChild(image_info_filename);
-    document.LinkEndChild(book_xml);
+    root->LinkEndChild(book_xml);
 
     //store image
     cv::imwrite(book_image_filename_store, book->image);
@@ -143,17 +158,19 @@ void BR::Database::save(std::string filename)
     fs << "descriptors" << book->descriptors;
     fs.release();
   });
+  document.LinkEndChild(root);
   document.SaveFile();
   saved = true;
 }
 
 BR::Book * BR::Database::find(cv::Mat image, cv::Mat& H)
 {
+  if (books.size() == 0) throw new EmptyDatabaseException("No books in database.");
   double min_dist, threshold, global_minimum;
   std::vector< cv::DMatch > matches_of_best;
   //std::vector< std::vector< cv::DMatch > > matches_list;
   global_minimum = 100;
-  Book * best_book = NULL;
+  Book * best_book = nullptr;
   
   Book::SURF(image, cv::Mat(), scene_keypoints, scene_descriptors);
   
@@ -232,7 +249,16 @@ void BR::Database::clear()
   books.clear();
 }
 
-void BR::Database::fixAndAdd(cv::Mat & image, cv::vector<cv::Point2f>, std::string title, std::string author, std::string isbn)
+void BR::Database::fixAndAdd(cv::Mat & image, const cv::vector<cv::Point2f> points, std::string title, std::string author, std::string isbn)
 {
+  cv::Mat output(480, 640, image.type());
+  cv::vector<cv::Point2f> dst_points(4);
+  dst_points[0] =  cv::Point2f(0,0);
+  dst_points[1] =  cv::Point2f(480,0);
+  dst_points[2] =  cv::Point2f(480,640);
+  dst_points[3] =  cv::Point2f(0,640);
+  cv::Mat transform = cv::getPerspectiveTransform(points, dst_points);
+  cv::warpPerspective(image, output, transform, cv::Size(480, 640));
+  addBook(new Book(isbn, title, author, output));
 }
 

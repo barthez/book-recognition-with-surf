@@ -39,6 +39,8 @@ private:
 
   Gtk::VBox main_box;
   Gtk::HBox buttons_box;
+  
+  Gtk::Statusbar status_bar;
 
     //for menu
   Glib::RefPtr<Gtk::UIManager> m_refUIManager;

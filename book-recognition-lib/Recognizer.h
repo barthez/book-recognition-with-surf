@@ -52,7 +52,7 @@ namespace BR {
     const cv::Mat & getCurrentFrame() const;
     void showCurrentFrame(bool show_book = true);
     cv::Mat getCurrentFrame(bool show_book);
-    Book & getCurrentBook();
+    const Book * getCurrentBook();
     bool next(bool find = false);
     bool hold(bool h = true);
     

@@ -54,6 +54,11 @@ namespace BR {
     RecognizerException(std::string msg) : Exception(msg) {};
   };
   
+  class EmptyDatabaseException: public DatabaseException {
+  public:
+    EmptyDatabaseException(std::string msg): DatabaseException(msg) {};
+  };
+  
 }
 
 #endif // EXCEPTIONS_H

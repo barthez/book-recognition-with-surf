@@ -2,7 +2,7 @@ project(book-recognition-with-surf)
 cmake_minimum_required(VERSION 2.8)
 
 
-add_definitions("-std=c++11 -Wall -g")
+add_definitions("-std=c++11 -Wall -Wno-reorder -g")
 
 find_package(OpenCV REQUIRED)
 find_package(PkgConfig)

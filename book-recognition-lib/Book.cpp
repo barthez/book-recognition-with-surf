@@ -42,6 +42,14 @@ BR::Book::Book(std::string isbn, std::string title, std::string author, std::str
   storeAndProcessImage(image);
 }
 
+BR::Book::Book(std::string isbn, std::string title, std::string author, cv::Mat image): 
+  isbn(isbn), title(title), author(author)
+{
+  this->image = image.clone();
+  processImage();
+}
+
+
 bool BR::Book::empty() const
 {
   return isbn.empty();
@@ -67,5 +75,10 @@ void BR::Book::storeAndProcessImage (std::string filename)
 {
   //this->filename = filename.substr(0,filename.length() - 3) + "xml";
   image = cv::imread(filename, 0); //loading grayscale image
-  SURF(image, cv::Mat(), keypoints, descriptors);
+  processImage();
  }
+ 
+void BR::Book::processImage()
+{
+  SURF(image, cv::Mat(), keypoints, descriptors);
+}

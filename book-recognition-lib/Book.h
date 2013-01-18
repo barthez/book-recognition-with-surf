@@ -41,6 +41,7 @@ namespace BR {
   public:
     Book();
     Book(std::string isbn, std::string title, std::string author, std::string image);
+    Book(std::string isbn, std::string title, std::string author, cv::Mat image);
     
     cv::Mat getImage() const;
     
@@ -52,7 +53,7 @@ namespace BR {
     cv::Mat image;
 
     void storeAndProcessImage(std::string filename);
-
+    void processImage();
     //for surf
     cv::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;

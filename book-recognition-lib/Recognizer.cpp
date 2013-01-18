@@ -78,9 +78,9 @@ void BR::Recognizer::setDatabase(BR::Database * db)
 }
 
 
-BR::Book & BR::Recognizer::getCurrentBook()
+const BR::Book * BR::Recognizer::getCurrentBook()
 {
-  return *current_book;
+  return current_book;
 }
 
 const cv::Mat& BR::Recognizer::getCurrentFrame() const
@@ -92,7 +92,7 @@ void BR::Recognizer::showCurrentFrame(bool show_book)
 {
   cv::Mat output_frame = getCurrentFrame().clone();
   if (show_book && current_book) {
-    cv::putText(output_frame, current_book->toString(),cv::Point(20,20),cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,0));
+    //cv::putText(output_frame, current_book->toString(),cv::Point(20,20),cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,0));
     
     std::vector< cv::Point2f > object_corners(4);
     std::vector< cv::Point2f > scene_corners(4);

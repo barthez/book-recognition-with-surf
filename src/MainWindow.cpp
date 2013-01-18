@@ -24,6 +24,7 @@ MainWindow::MainWindow(void) :
   setFilters();
 
   Gtk::Menu_Helpers::MenuList& list_upd = source_menu.items();
+  list_upd.push_back(Gtk::Menu_Helpers::MenuElem("Choose source..."));
   list_upd.push_back(
     Gtk::Menu_Helpers::MenuElem("From camera", sigc::bind(sigc::mem_fun(*this,
     &MainWindow::on_source_menu_changed), STREAM_SOURCE::CAMERA)));
@@ -47,7 +48,9 @@ MainWindow::MainWindow(void) :
   add(main_box);
   main_box.pack_start(*(m_refUIManager->get_widget("/MenuBar")), Gtk::PACK_SHRINK);
   main_box.pack_start(image_event_box);
-  main_box.pack_end(buttons_box, Gtk::PACK_SHRINK);
+  main_box.pack_start(buttons_box, Gtk::PACK_SHRINK);
+  main_box.pack_end(status_bar, Gtk::PACK_SHRINK);
+  
 
   image_event_box.add(image_place);
 
@@ -62,7 +65,6 @@ MainWindow::MainWindow(void) :
   add_book_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_add_book_button_clicked));
   image_event_box.signal_button_press_event().connect(sigc::mem_fun(*this, &MainWindow::on_on_image_place_clicked));
 
- 
   //showing
   main_box.show();
   main_box.show_all_children(true);
@@ -229,6 +231,7 @@ void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
   {
   case STREAM_SOURCE::CAMERA:
     recognizer.open(0);
+    status_bar.push("Reading from camera...");
     break;
   case STREAM_SOURCE::FILE:
     Gtk::FileChooserDialog dialog("Choose a video file", Gtk::FILE_CHOOSER_ACTION_SAVE);
@@ -240,6 +243,7 @@ void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
     if (dialog.run() == Gtk::RESPONSE_OK)
     {
       recognizer.open(dialog.get_filename());
+      status_bar.push((std::string("Reading file: ") + dialog.get_filename()).c_str());
     }
     break;  
   }
@@ -301,8 +305,10 @@ bool MainWindow::on_on_image_place_clicked(GdkEventButton * button)
     BookDataDialog bdd;
     if (bdd.run() == Gtk::RESPONSE_OK)
     {
-      db.fixAndAdd(image, points, bdd.getTitle(), bdd.getAuthor(), bdd.getISBN());
-      Gtk::MessageDialog("Book was added to database").run();
+      cv::Mat imageBGR;
+      cv::cvtColor(image, imageBGR, CV_RGB2BGR);
+      db.fixAndAdd(imageBGR, points, bdd.getTitle(), bdd.getAuthor(), bdd.getISBN());
+      status_bar.push("Book was added to database");
     }
   }
   
@@ -317,18 +323,25 @@ void MainWindow::on_add_book_button_clicked()
 void MainWindow::on_find_button_clicked()
 {
   on_start_stop_button_clicked();
-  getFrame(true);
-  recognizer.hold(false);
+  try {
+    getFrame(true);
+    const BR::Book * book;
+    if ((book = recognizer.getCurrentBook()) != nullptr) {
+      status_bar.push(("Found book: " + book->toString()).c_str());
+      recognizer.hold(false);
+    }
+  } catch(BR::EmptyDatabaseException * ex) {
+    Gtk::MessageDialog(ex->getFullMessage()).run();
+  }
 }
 
 void MainWindow::getFrame(bool find_book)
 {
   recognizer.next(find_book);
-  cv::Mat tmp = recognizer.getCurrentFrame(true);
-  cv::Mat tmp2;
-  cv::cvtColor(tmp, tmp2, CV_BGR2RGB);
+  cv::Mat tmp;
+  cv::cvtColor(recognizer.getCurrentFrame(false), tmp, CV_BGR2RGB);
   showing_image_mutex.lock();
-  cv::resize(tmp2, image, cv::Size(image_event_box.get_width(), image_event_box.get_height()));
+  cv::resize(tmp, image, cv::Size(image_event_box.get_width(), image_event_box.get_height()));
 //  pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
   //image_place.set(pixbuf);
   //image_place.queue_draw();
