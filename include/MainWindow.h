@@ -2,8 +2,8 @@
 
 #include <Recognizer.h>
 
-#include <gtkmm-2.4\gtkmm.h>
-#include <opencv2\core\core.hpp>
+#include <gtkmm.h>
+#include <opencv2/core/core.hpp>
 
 #include <thread>
 #include <atomic>

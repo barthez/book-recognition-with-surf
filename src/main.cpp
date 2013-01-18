@@ -5,7 +5,7 @@
 #include <Recognizer.h>
 #include <Exceptions.h>
 
-#include <glibmm\thread.h>
+#include <glibmm/thread.h>
 
 using namespace BR;
 

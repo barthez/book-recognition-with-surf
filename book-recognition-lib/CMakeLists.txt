@@ -9,7 +9,8 @@ set(book_lib_SOURCES
   Book.cpp
   Exceptions.cpp)
   
-include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_library(book-recognition-lib ${book_lib_SOURCES} )
-target_link_libraries(book-recognition-lib ${OpenCV_LIBS})
+include_directories(${OpenCV_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIR})
+
+add_library(book-recognition-lib ${book_lib_SOURCES})
+target_link_libraries(book-recognition-lib ${OpenCV_LIBS} ${TinyXML_LIBRARY})

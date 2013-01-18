@@ -1,10 +1,11 @@
 #include <iostream>
 #include <vector>
 
-#include <opencv2\imgproc\imgproc.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "MainWindow.h"
 #include "BookDataDialog.h"
+#include <Exceptions.h>
 
 MainWindow::MainWindow(void) :
   start_stop_button("Start"),
@@ -180,7 +181,12 @@ void MainWindow::on_load_database_menu_item_clicked()
 
   if (dialog.run() == Gtk::RESPONSE_OK)
   {
-    db.load(dialog.get_filename());
+    try {
+      db.load(dialog.get_filename());
+    } catch (BR::Exception * ex) {
+      Gtk::MessageDialog(ex->getFullMessage().c_str()).run();
+      return;
+    }
   }
 }
 

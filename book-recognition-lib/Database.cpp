@@ -81,6 +81,7 @@ void BR::Database::load(std::string filename)
     child = child->NextSiblingElement("image_filename");
     book_image_filename = filename_prefix +  child->GetText();
     child = child->NextSiblingElement("image_info_filename");
+    if ( child == NULL ) throw new DatabaseException("Unknown file stucture");
     book_info_filename = filename_prefix + child->GetText();
 
     //load structures

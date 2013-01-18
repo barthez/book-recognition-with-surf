@@ -1,5 +1,5 @@
 #pragma once
-#include <gtkmm-2.4\gtkmm.h>
+#include <gtkmm.h>
 
 #include <string>
 
