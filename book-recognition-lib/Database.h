@@ -39,18 +39,60 @@ namespace BR {
   class Database
   {
   public:
+    /**
+     * Default constructor.
+     * @param as 
+     */
     Database(bool as = false);
+    /**
+     * Contructore with filename with database to open.
+     * @param filename Database file name.
+     * @param as
+     */
     Database(std::string filename, bool as = false);
     ~Database();
     
+    /**
+     * Load database from file.
+     * @param filename Database file name.
+     */
     void load(std::string filename);    
+    /**
+     * Save database to file.
+     * @param filename Database file name.
+     */
     void save(std::string filename);
+    /**
+     * Add book to database.
+     * @param book Book to add.
+     */
     void addBook(Book * book);
     
+    /**
+     * Find book in database.
+     * @param image Image with book
+     * @param H 
+     * @return Pointer to found book. Do not remove it.
+     */
     Book* find(cv::Mat image, cv::Mat & H);
 
+    /**
+     * Tells if database was saved.
+     * @return true if was, false otherwise.
+     */
     bool isSaved() const;
+    /**
+     * Clear database.
+     */
     void clear();
+    /**
+     * Add book to database from image.
+     * @param image Image with book
+     * @param Points with book corners.
+     * @param title Book title.
+     * @param author Book author.
+     * @param isbn Book isbn.
+     */
     void fixAndAdd(cv::Mat& image, const std::vector< cv::Point2f > points, std::string title, std::string author, std::string isbn);
   private:    
     void initialize(bool as);

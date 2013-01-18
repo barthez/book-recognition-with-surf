@@ -33,6 +33,9 @@
 
 namespace BR {
   
+/**
+ * @class Exception class
+ */
   class Exception
   {
   public:
