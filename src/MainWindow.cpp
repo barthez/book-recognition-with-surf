@@ -145,6 +145,7 @@ void MainWindow::on_start_stop_button_clicked()
   if (run) //stopping
   {
     find = run = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); //wait for other thread to finish
     showing_image_thread->join();
     delete showing_image_thread;
     showing_image_thread = nullptr;
