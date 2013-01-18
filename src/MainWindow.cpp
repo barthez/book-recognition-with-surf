@@ -43,6 +43,7 @@ MainWindow::MainWindow(void) :
 
   start_stop_button.set_sensitive(false);
   add_book_button.set_sensitive(false);
+  find_button.set_sensitive(false);
     
   add(main_box);
   main_box.pack_start(*(m_refUIManager->get_widget("/MenuBar")), Gtk::PACK_SHRINK);
