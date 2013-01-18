@@ -126,3 +126,5 @@ db
 *.dll
 ui.txt
 db2
+
+nbproject

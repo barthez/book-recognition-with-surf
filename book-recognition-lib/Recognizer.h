@@ -36,24 +36,75 @@
 #include "Database.h"
 
 namespace BR {
-  
+
+/**
+ * @class Class which do job connected with recognition.
+ */
   class Recognizer
   {
   public:
+    /**
+     * Default constructor.
+     */
     Recognizer();
+    /**
+     * Contructor opens camera specified by camID.
+     * @param camId Camera id 
+     */
     Recognizer(int camID);
+    /**
+     * Contructor opens video file.
+     * @param movie_filename Video file name.
+     */
     Recognizer(std::string movie_filename);
     
+    /**
+     * Open camera.
+     * @param camID Camera id.
+     * @return true if succeded, false otherwise.
+     */
     bool open(int camID);
+    /**
+     * Open video file.
+     * @param movie_filename Video file name.
+     * @return true if succeded, false otherwise.
+     */
     bool open(std::string movie_filename);
     
+    /**
+     * Set database with books.
+     * @param db Pointer to BR::Database with books.
+     */
     void setDatabase(Database * db);
     
     const cv::Mat & getCurrentFrame() const;
+    /**
+     * Shows current frame.
+     * @param show_book If on image book will be shown.
+     */
     void showCurrentFrame(bool show_book = true);
+    /**
+     * Get current frame from input.
+     * @param show_book If on image book will be shown.
+     * @return cv::Mat with current frame.
+     */
     cv::Mat getCurrentFrame(bool show_book);
+    /**
+     * Get current recognized book
+     * @return 
+     */
     Book & getCurrentBook();
+    /**
+     * 
+     * @param find
+     * @return 
+     */
     bool next(bool find = false);
+    /**
+     * 
+     * @param h
+     * @return 
+     */
     bool hold(bool h = true);
     
   private:

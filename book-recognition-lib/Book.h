@@ -35,17 +35,46 @@
 
 namespace BR {
 
+/**
+ * @class Class represents book.
+ */
   class Book
   {
 
   public:
+    /**
+     * Default contructor.
+     */
     Book();
+    /**
+     * Contructor with settings book attributes.
+     * @param isbn Book isbn.
+     * @param title Book title.
+     * @param author Book author.
+     * @param image File name with image with book.
+     */
     Book(std::string isbn, std::string title, std::string author, std::string image);
     
+    /**
+     * Get book image.
+     * @return cv::Mat with book image.
+     */
     cv::Mat getImage() const;
     
+    /**
+     * Get human readable book attributes.
+     * @return std::string with human readable book attributes.
+     */
     std::string toString() const;
+    /**
+     * Telss if book is empty.
+     * @return true if book don't have attributes, false otherwise.
+     */
     operator bool () const;
+    /**
+     * Telss if book is empty.
+     * @return true if book don't have attributes, false otherwise.
+     */
     bool empty() const;
   private:
     std::string isbn, title, author;
