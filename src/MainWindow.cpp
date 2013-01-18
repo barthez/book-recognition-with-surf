@@ -341,7 +341,7 @@ void MainWindow::getFrame(bool find_book)
 {
   recognizer.next(find_book);
   cv::Mat tmp;
-  cv::cvtColor(recognizer.getCurrentFrame(false), tmp, CV_BGR2RGB);
+  cv::cvtColor(recognizer.getCurrentFrame(true), tmp, CV_BGR2RGB);
   showing_image_mutex.lock();
   cv::resize(tmp, image, cv::Size(image_event_box.get_width(), image_event_box.get_height()));
 //  pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
