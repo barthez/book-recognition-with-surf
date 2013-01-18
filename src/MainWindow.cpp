@@ -17,7 +17,7 @@ MainWindow::MainWindow(void) :
   find(false),
   showing_image_thread(nullptr)
 {
-  set_title("Book reogition");
+  set_title("Book recognition");
   set_size_request(800, 600);
 
   makeMenu();
@@ -325,10 +325,13 @@ void MainWindow::getFrame(bool find_book)
   cv::Mat tmp = recognizer.getCurrentFrame(true);
   cv::Mat tmp2;
   cv::cvtColor(tmp, tmp2, CV_BGR2RGB);
+  showing_image_mutex.lock();
   cv::resize(tmp2, image, cv::Size(image_event_box.get_width(), image_event_box.get_height()));
-  pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
-  image_place.set(pixbuf);
-  image_place.queue_draw();
+//  pixbuf = Gdk::Pixbuf::create_from_data(image.data, Gdk::COLORSPACE_RGB, false, 8, image.cols, image.rows, image.step);
+  //image_place.set(pixbuf);
+  //image_place.queue_draw();
+  showing_image_mutex.unlock();
+  dispatcher.emit();
   //showing_image_mutex.unlock();
   //dispatcher.emit();
   //std::this_thread::yield();
