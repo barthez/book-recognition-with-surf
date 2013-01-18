@@ -271,15 +271,17 @@ void MainWindow::showing_frames()
   {
   while (run)
   {
-    gdk_threads_enter();
+//    gdk_threads_enter();
     getFrame(false);
-    gdk_threads_leave();
+  //  gdk_threads_leave();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   }
-  catch (...)
+  catch (...) //in case when video is over
   {
-    gdk_threads_leave();
+    Gtk::MessageDialog("Video reached end\n").run();
+    //on_start_stop_button_clicked();
+    //gdk_threads_leave();
   }
 }
 
