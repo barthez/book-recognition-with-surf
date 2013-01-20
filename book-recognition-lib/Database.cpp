@@ -115,7 +115,7 @@ void BR::Database::save(std::string filename)
   std::string filename_prefix = dir_pos == std::string::npos ? "" : filename.substr(0, dir_pos + 1);
   std::string db_name = dir_pos == std::string::npos ? filename : filename.substr(dir_pos + 1, filename.length() - dir_pos - 5);
 
-  std::cout << "prefix: " << filename_prefix << "; db_name: " << db_name << "\n";
+//  std::cout << "prefix: " << filename_prefix << "; db_name: " << db_name << "\n";
   
   TiXmlDocument document(filename.c_str());
   

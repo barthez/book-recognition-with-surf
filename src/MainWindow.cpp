@@ -145,7 +145,6 @@ bool MainWindow::canQuit()
 
 void MainWindow::on_start_stop_button_clicked()
 {
-  find_button.set_sensitive(true);
   if (run) //stopping
   {
     find = run = false;
@@ -156,6 +155,7 @@ void MainWindow::on_start_stop_button_clicked()
     start_stop_button.set_label("Start");
     option_menu.set_sensitive(true);
     add_book_button.set_sensitive(true);
+    find_button.set_sensitive(false);
   }
   else //starting
   {
@@ -165,6 +165,7 @@ void MainWindow::on_start_stop_button_clicked()
     start_stop_button.set_label("Stop");
     option_menu.set_sensitive(false);
     add_book_button.set_sensitive(false);
+  find_button.set_sensitive(true);
   }
 }
 
@@ -299,6 +300,7 @@ bool MainWindow::on_on_image_place_clicked(GdkEventButton * button)
   }
   static int count = 0;
   static std::vector<cv::Point2f> points(4);
+  //std::cout << button->x << " " << button->y << "\n";
   points[count] = cv::Point2f(button->x, button->y);
   if (++count == 4)
   {
@@ -312,14 +314,24 @@ bool MainWindow::on_on_image_place_clicked(GdkEventButton * button)
       db.fixAndAdd(imageBGR, points, bdd.getTitle(), bdd.getAuthor(), bdd.getISBN());
       status_bar.push("Book was added to database");
     }
+    else
+    {
+      status_bar.push("Adding book canceled");
+    }
   }
-  
+  else
+  {
+    status_bar.push(std::to_string(count) + ". point selected");
+  }
+  cv::circle(image, cv::Point2i(button->x, button->y), 10, cv::Scalar(0,0,155), 10);
+  dispatcher.emit();
   return true;
 }
 
 void MainWindow::on_add_book_button_clicked()
 {
   read_image = true;
+  status_bar.push("Click on image to select book. Start with book's top left corner and next go clockwise");
 }
 
 void MainWindow::on_find_button_clicked()
