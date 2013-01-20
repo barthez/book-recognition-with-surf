@@ -15,7 +15,8 @@ MainWindow::MainWindow(void) :
   source_label("Source:"),
   run(false),
   find(false),
-  showing_image_thread(nullptr)
+  showing_image_thread(nullptr),
+  read_image(false)
 {
   set_title("Book recognition");
   set_size_request(800, 600);
@@ -228,12 +229,15 @@ void MainWindow::on_clear_database_menu_item_clicked()
 
 void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
 {
-  start_stop_button.set_sensitive(true);
   add_book_button.set_sensitive(false);
   switch (source)
   {
   case STREAM_SOURCE::CAMERA:
-    recognizer.open(0);
+    if (!recognizer.open(0))
+    {
+      Gtk::MessageDialog("Failed to open camera").run();
+      return;
+    }
     status_bar.push("Reading from camera...");
     break;
   case STREAM_SOURCE::FILE:
@@ -245,11 +249,16 @@ void MainWindow::on_source_menu_changed(STREAM_SOURCE source)
     dialog.add_filter(all_filter);
     if (dialog.run() == Gtk::RESPONSE_OK)
     {
-      recognizer.open(dialog.get_filename());
+      if (!recognizer.open(dialog.get_filename()))
+      {
+        Gtk::MessageDialog("Failed to open file: " + dialog.get_filename()).run();
+        return;
+      }
       status_bar.push((std::string("Reading file: ") + dialog.get_filename()).c_str());
     }
     break;  
   }
+  start_stop_button.set_sensitive(true);
 }
 
 void MainWindow::setFilters()
